@@ -1,0 +1,1 @@
+export { default, CombinedProps as IconButtonProps } from './IconButton'
