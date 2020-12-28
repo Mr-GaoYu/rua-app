@@ -4,6 +4,8 @@ import Grid from "src/components/core/Grid";
 import { isProductionBuild } from "src/constants";
 import EnvironmentToggleTool from "./EnvironmentToggleTool";
 import MockDataTool from "./MockDataTool";
+import { Provider } from "react-redux";
+import store from "src/store";
 
 import "./dev-tools.css";
 
@@ -32,5 +34,10 @@ export const install = () => {
 
   const devToolsRoot = document.createElement("div");
   document.body.appendChild(devToolsRoot);
-  ReactDOM.render(<DevTools />, devToolsRoot);
+  ReactDOM.render(
+    <Provider store={store}>
+      <DevTools />
+    </Provider>,
+    devToolsRoot
+  );
 };

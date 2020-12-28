@@ -1,5 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { combineReducers } from "redux";
+import { combineReducers, applyMiddleware } from "redux";
 
 export interface ResourcesState {}
 
@@ -9,17 +9,17 @@ export interface ApplicationState {
 
 const __resourcesDefaultState = {};
 
-const defaultState: ApplicationState = {
+const preloadedState: ApplicationState = {
   __resources: __resourcesDefaultState,
 };
 
 const __resources = combineReducers({});
 
-const reducers = combineReducers<ApplicationState>({
+const reducer = combineReducers<ApplicationState>({
   __resources,
 });
 
 export default configureStore({
-  reducer: reducers,
-  preloadedState: defaultState,
+  reducer,
+  preloadedState,
 });
