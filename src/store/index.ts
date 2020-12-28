@@ -1,17 +1,25 @@
 import { configureStore } from "@reduxjs/toolkit";
+import { combineReducers } from "redux";
 
 export interface ResourcesState {}
 
 export interface ApplicationState {
-//   __resources: ResourcesState;
+  __resources: ResourcesState;
 }
 
-const __resources = {};
+const __resourcesDefaultState = {};
 
-const reducers: ApplicationState = {
-//   __resources,
+const defaultState: ApplicationState = {
+  __resources: __resourcesDefaultState,
 };
 
-// export default configureStore({
-//     reducer: reducers,
-// });
+const __resources = combineReducers({});
+
+const reducers = combineReducers<ApplicationState>({
+  __resources,
+});
+
+export default configureStore({
+  reducer: reducers,
+  preloadedState: defaultState,
+});
