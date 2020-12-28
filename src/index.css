@@ -1,0 +1,32 @@
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+html {
+  height: 100%;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0 !important;
+  font-family: "LatoWeb", sans-serif;
+}
+
+@media screen and (min-width: 960px) {
+  body {
+    /* fix for scrollbar compensation */
+    width: 100%;
+    overflow-x: hidden;
+  }
+}
+
+#root {
+    height: 100%;
+  }
+  

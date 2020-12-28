@@ -1,0 +1,1 @@
+import { setupWorker } from 'msw';

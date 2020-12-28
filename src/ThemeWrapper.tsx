@@ -1,5 +1,9 @@
-import React from 'react';
+import React from "react";
+import { dark, light } from "src/theme";
 
-const ThemeWrapper: React.FC = props => {
-    return <div>2</div>
-}
+export type ThemeChoice = "dark" | "light";
+export type SpacingChoice = "compact" | "normal";
+
+const ThemeWrapper: React.FC = (props) => {
+  return <div>2</div>;
+};

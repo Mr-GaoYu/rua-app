@@ -21,8 +21,11 @@ export {
     withStyles,
     withTheme,
     useTheme
-  } from '@material-ui/core/styles';
+  } from '@material-ui/styles';
 
 
+  export { createMuiTheme } from '@material-ui/core/styles';
 
-export { Theme } from '@material-ui/core/styles/createMuiTheme';
+  export { Theme } from '@material-ui/core/styles/createMuiTheme';
+  
+  export { default as useMediaQuery } from '@material-ui/core/useMediaQuery';
