@@ -1,4 +1,5 @@
 import React from "react";
+import { worker } from '../mocks/testBrowser';
 
 const ServiceWorkerTool: React.FC<{}> = (_) => {
   const _workerActive =
@@ -7,8 +8,11 @@ const ServiceWorkerTool: React.FC<{}> = (_) => {
 
   React.useEffect(() => {
     if (workerActive) {
-    } else {
-    }
+        console.log(2221312)
+        worker.start();
+      } else {
+        worker.stop();
+      }
   }, [workerActive]);
 
   const handleToggleWorker = (e: React.ChangeEvent<HTMLInputElement>) => {
