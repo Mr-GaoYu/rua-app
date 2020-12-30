@@ -229,4 +229,4 @@ export default withPreferences<PreferenceProps, Props>(
     preferenceError: error,
     preferencesLastUpdated: lastUpdated,
   })
-)(PreferenceToggle);
+)(PreferenceToggle) as <T>(props: Props<T>) => React.ReactElement;;

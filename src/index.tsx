@@ -10,13 +10,26 @@ import {
   RouteComponentProps,
   Switch,
 } from "react-router-dom";
+import ThemeWrapper from './ThemeWrapper';
 import "./index.css";
 
 const renderNull = () => <span>null route</span>;
 
+const renderApp = (props: RouteComponentProps) => (
+  <React.Fragment>
+    <ThemeWrapper>
+      {(toggle, spacing) => (
+        <App />
+      )}
+    </ThemeWrapper>
+  </React.Fragment>
+)
+
 const renderAuthentication = () => (
   <React.Suspense fallback={null}>
-   
+    <Switch>
+      <Route render={renderApp} />
+    </Switch>
   </React.Suspense>
 )
 
@@ -24,13 +37,12 @@ loadDevTools(() => {
   ReactDOM.render(
     navigator.cookieEnabled ? (
       <Provider store={store}>
-        {/* <BrowserRouter>
+        <BrowserRouter>
           <Switch>
             <Route exact path="/null" render={renderNull} />
-            <Route  render={renderAuthentication} />
+            <Route render={renderAuthentication} />
           </Switch>
-        </BrowserRouter> */}
-         <App />
+        </BrowserRouter>
       </Provider>
     ) : null,
     document.getElementById("root") as HTMLElement
