@@ -9,19 +9,20 @@ import { Dispatch } from "./types";
 
 export interface Preferences {
   preferences: UserPreferences;
-  updateUserPreferences: (
-    preferences: UserPreferences
-  ) => Promise<UserPreferences>;
+  getPreferences: () => Promise<UserPreferences>;
+  updatePreferences: (preferences: UserPreferences) => Promise<UserPreferences>;
 }
 
 export const usePreferences = () => {
   const dispatch: Dispatch = useDispatch();
-  const preferences = useSelector(
-    (state: ApplicationState) => state.preferences.data
-  );
+  const preferences = useSelector((state: ApplicationState) => {
+    return state.preferences.data;
+  });
+
+  const getPreferences = () => dispatch(getUserPreferences());
+
   const updatePreferences = (newPreferences: UserPreferences) =>
     dispatch(getUserPreferences()).then((currentPreferences) => {
-
       dispatch(
         updateUserPreferences({ ...currentPreferences, ...newPreferences })
       );
@@ -29,6 +30,7 @@ export const usePreferences = () => {
 
   return {
     preferences,
+    getPreferences,
     updatePreferences,
   };
 };

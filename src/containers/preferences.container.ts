@@ -1,14 +1,12 @@
 import { connect } from "react-redux";
-import { ApplicationState } from "src/store";
-
-import { UserPreferences } from "src/store/preferences/preferences.actions";
 import { State } from "src/store/preferences/preferences.reducer";
+import { ApplicationState } from "src/store";
+import { ThunkDispatch } from "src/store/types";
 import {
   getUserPreferences,
   updateUserPreferences,
 } from "src/store/preferences/preferences.requests";
-
-import { ThunkDispatch } from "src/store/types";
+import { UserPreferences } from "src/store/preferences/preferences.actions";
 
 export interface PreferencesStateProps {
   preferences: UserPreferences;
