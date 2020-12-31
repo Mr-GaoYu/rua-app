@@ -10,7 +10,8 @@ import {
   RouteComponentProps,
   Switch,
 } from "react-router-dom";
-import ThemeWrapper from './ThemeWrapper';
+import ThemeWrapper from "./ThemeWrapper";
+import SnackBar from "src/components/SnackBar";
 import "./index.css";
 
 const renderNull = () => <span>null route</span>;
@@ -19,11 +20,13 @@ const renderApp = (props: RouteComponentProps) => (
   <React.Fragment>
     <ThemeWrapper>
       {(toggle, spacing) => (
-        <App />
+        <SnackBar>
+          <App />
+        </SnackBar>
       )}
     </ThemeWrapper>
   </React.Fragment>
-)
+);
 
 const renderAuthentication = () => (
   <React.Suspense fallback={null}>
@@ -31,7 +34,7 @@ const renderAuthentication = () => (
       <Route render={renderApp} />
     </Switch>
   </React.Suspense>
-)
+);
 
 loadDevTools(() => {
   ReactDOM.render(

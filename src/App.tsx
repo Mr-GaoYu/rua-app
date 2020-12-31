@@ -1,13 +1,20 @@
 import React from "react";
-import Axios from "axios";
-import withPreferences, {
-  PreferencesActionsProps,
-} from "src/containers/preferences.container";
-function App(props) {
-  React.useEffect(() => {
-    props.getUserPreferences();
-  }, []);
-  return <div className="App">111</div>;
+import { RouteComponentProps } from "react-router-dom";
+import { useSnackbar } from "notistack";
+interface Props {
+  toggleTheme: () => void;
+  toggleSpacing: () => void;
+  location: RouteComponentProps["location"];
+  history: RouteComponentProps["history"];
 }
 
-export default withPreferences()(App);
+const App: React.FC = (props) => {
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
+  const handleClick = () => {
+    enqueueSnackbar("I love hooks");
+  };
+  return <button onClick={handleClick}>Show snackbar</button>;
+};
+
+export default App;
