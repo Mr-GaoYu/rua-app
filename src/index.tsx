@@ -20,7 +20,11 @@ const renderApp = (props: RouteComponentProps) => (
   <React.Fragment>
     <ThemeWrapper>
       {(toggle, spacing) => (
-        <SnackBar>
+        <SnackBar
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          maxSnack={3}
+          autoHideDuration={4000}
+          hideIconVariant={true}>
           <App />
         </SnackBar>
       )}

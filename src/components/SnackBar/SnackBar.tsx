@@ -1,13 +1,30 @@
 import React from "react";
-import { SnackbarProvider } from "notistack";
+import { SnackbarProvider, SnackbarProviderProps } from "notistack";
+import CloseSnackbar from './CloseSnackbar';
 
-const SnackBar: React.FC = (props) => {
-  const { children } = props;
+export type CombinedProps = SnackbarProviderProps
+
+const SnackBar: React.FC<CombinedProps> = (props) => {
+  const { children, ...rest } = props;
   const notistackRef: React.Ref<SnackbarProvider> = React.createRef();
-  console.log(111)
+  const onClickDismiss = (key: string | number | undefined) => () => {
+    notistackRef?.current?.closeSnackbar(key);
+  };
 
-
-  return <SnackbarProvider ref={notistackRef}>{children}</SnackbarProvider>;
+  return (
+    <SnackbarProvider
+      ref={notistackRef}
+      {...rest}
+      action={key => (
+        <CloseSnackbar
+          onClick={onClickDismiss(key)}
+          text="Dismiss Notification"
+        />
+      )}>
+      {children}
+    </SnackbarProvider>
+  );
 };
+
 
 export default SnackBar;

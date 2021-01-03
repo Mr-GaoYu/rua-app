@@ -1,1 +1,2 @@
-export { default, CombinedProps as IconButtonProps } from './IconButton'
+import IconButton from './IconButton';
+export default IconButton;

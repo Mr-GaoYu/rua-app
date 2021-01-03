@@ -1,6 +1,7 @@
 import React from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { useSnackbar } from "notistack";
+
 interface Props {
   toggleTheme: () => void;
   toggleSpacing: () => void;
@@ -8,13 +9,15 @@ interface Props {
   history: RouteComponentProps["history"];
 }
 
-const App: React.FC = (props) => {
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+type CombinedProps = Props & RouteComponentProps;
 
-  const handleClick = () => {
-    enqueueSnackbar("I love hooks");
-  };
-  return <button onClick={handleClick}>Show snackbar</button>;
+const App: React.FC = (props) => {
+
+  return (
+    <React.Fragment>
+      2
+    </React.Fragment>
+  );
 };
 
 export default App;

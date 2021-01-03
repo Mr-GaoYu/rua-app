@@ -117,7 +117,7 @@ const MemoizedThemeProvider: React.FC<MemoizedThemeProviderProps> = (props) => {
   );
 };
 
-const safelyGetTheme = (
+export const safelyGetTheme = (
   themesToChoose: Record<"dark" | "light", any>,
   themeChoice: string
 ) => {

@@ -12,6 +12,22 @@ export type EventStatus =
   | "failed"
   | "notification";
 
+export type NotificationType =
+  | 'billing_email_bounce'
+  | 'migration_scheduled'
+  | 'migration_pending'
+  | 'reboot_scheduled'
+  | 'outage'
+  | 'maintenance'
+  | 'payment_due'
+  | 'ticket_important'
+  | 'ticket_abuse'
+  | 'notice'
+  | 'promotion'
+  | 'user_email_bounce';
+
+export type NotificationSeverity = 'minor' | 'major' | 'critical';
+
 export interface Entity {
   id: number;
   label: string;
@@ -21,7 +37,7 @@ export interface Entity {
 
 export interface Event {
   id: number;
-  action: EventAction; 
+  action: EventAction;
   created: string;
   duration: number | null;
   entity: Entity | null;
@@ -34,4 +50,15 @@ export interface Event {
   status: EventStatus;
   time_remaining: string | null;
   username: string;
+}
+
+export interface Notification {
+  entity: null | Entity;
+  label: string;
+  message: string;
+  type: NotificationType;
+  severity: NotificationSeverity;
+  when: null | string;
+  until: null | string;
+  body: null | string;
 }
