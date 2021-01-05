@@ -1,7 +1,8 @@
 import React from "react";
 import classNames from "classnames";
+import ListItem from "src/components/core/ListItem";
 import ListItemText from "src/components/core/ListItemText";
-import { Link } from 'react-router-dom';
+import { NavLink, NavLinkProps } from 'react-router-dom';
 import {
   createStyles,
   Theme,
@@ -27,21 +28,18 @@ const styles = (theme: Theme) =>
         color: theme.color.menuActiveText,
       },
     },
-    active:{
+    active: {
       color: theme.color.menuActiveText,
     }
   });
 
-interface Props extends PrimaryLink {
+
+export interface Props extends NavLinkProps {
+  disabled?: boolean;
+  suffix?: JSX.Element;
+  prefix?: any;
   prefixClasses?: string;
   suffixClasses?: string;
-}
-
-export interface PrimaryLink {
-  href?: string;
-  disabled?: boolean;
-  prefix?: JSX.Element;
-  suffix?: JSX.Element;
   key: string;
   title: string;
   onClick?: () => void;
@@ -49,20 +47,25 @@ export interface PrimaryLink {
 
 export type CombinedProps = Props & WithStyles<ClassNames>;
 
+
 const MenuItem: React.FC<CombinedProps> = (props) => {
   const {
-    href,
+    to,
     prefix,
     suffix,
     title,
     prefixClasses,
     suffixClasses,
     classes,
+    ...rest
   } = props;
 
   return (
-    <Link
-      to={href}
+    <ListItem
+      component={LinkItem}
+      to={to}
+      {...rest}
+      button
       className={classNames({
         [classes.menuItem]: true,
         [classes.active]: true,
@@ -95,10 +98,17 @@ const MenuItem: React.FC<CombinedProps> = (props) => {
           {suffix}
         </div>
       )}
-    </Link>
+    </ListItem>
   );
 };
 
 const styled = withStyles(styles);
 
 export default styled(MenuItem);
+
+
+export const LinkItem: React.ExoticComponent<NavLinkProps> = React.forwardRef(
+  (props: NavLinkProps, ref: React.Ref<HTMLAnchorElement>) => (
+    <NavLink exact {...props} innerRef={ref} />
+  ))
+

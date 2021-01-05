@@ -47,7 +47,7 @@ loadDevTools(() => {
         <BrowserRouter>
           <Switch>
             <Route exact path="/null" render={renderNull} />
-            <Route render={renderAuthentication} />
+            <Route  render={renderApp} />
           </Switch>
         </BrowserRouter>
       </Provider>

@@ -1,6 +1,6 @@
 import React from "react";
 import { RouteComponentProps } from "react-router-dom";
-import { useSnackbar } from "notistack";
+import Menu from 'src/components/Menu'
 
 interface Props {
   toggleTheme: () => void;
@@ -15,7 +15,7 @@ const App: React.FC = (props) => {
 
   return (
     <React.Fragment>
-      2
+      <Menu />
     </React.Fragment>
   );
 };

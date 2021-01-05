@@ -16,9 +16,9 @@ const Menu: React.FC = (props) => {
   const classes = useStyles();
 
   return (
-    <SubMenu title="仪表盘" key="as">
-      <MenuItem title="仪表盘" key="asa" href="#" />
-      <MenuItem title="仪表盘" key="ass" href="#" />
+    <SubMenu title="仪表盘" key="as" to="/ass">
+      <MenuItem title="仪表盘" key="asa" to="/a" />
+      <MenuItem title="仪表盘" key="ass" to="/b" />
     </SubMenu>
   );
 };

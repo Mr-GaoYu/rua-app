@@ -5,10 +5,12 @@ import ListItemIcon from "src/components/core/ListItemIcon";
 import Collapse from "src/components/core/Collapse";
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
-import MenuItem, { PrimaryLink } from "./MenuItem";
+import MenuItem from "./MenuItem";
+import { NavLink, NavLinkProps } from 'react-router-dom';
 
-interface Props extends Omit<PrimaryLink, "href"> {
+interface Props extends NavLinkProps {
   children: JSX.Element | JSX.Element[];
+  key?: string
 }
 
 type CombinedProps = Props;
@@ -23,8 +25,7 @@ const SubMenu: React.FC<CombinedProps> = (props) => {
       <MenuItem
         title={title}
         key={key}
-        suffix={<ExpandMore />}
-        prefix={<PrefixComponent />}
+        to="/vv"
       />
       <Collapse in={true} timeout="auto" unmountOnExit>
         {children}
