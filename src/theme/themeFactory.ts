@@ -130,6 +130,8 @@ const themeDefaults: ThemeDefaults = ({ spacingOverride: spacingUnit }) => {
     },
     color: {
       red: '#ca0813',
+      menuText: '#a0abbf',
+      menuActiveText: '#357df6'
     },
     font: {
       normal: primaryFonts.normal,
