@@ -6,7 +6,7 @@ import {
   SelectInfo,
 } from "./interface";
 
-interface MenuProps extends MenuContextProps {}
+interface MenuProps extends MenuContextProps { }
 
 const Menu: React.FC<MenuProps> = (props) => {
   const {
@@ -50,9 +50,15 @@ const Menu: React.FC<MenuProps> = (props) => {
     }
   };
 
-  const onOpenChange = () => {};
+  const onOpenChange = event => {
+    if (Array.isArray(event)) {
 
-  const onDeselect = () => {};
+    }else{
+      
+    }
+  };
+
+  const onDeselect = () => { };
 
   return (
     <MenuContext.Provider

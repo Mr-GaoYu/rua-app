@@ -5,7 +5,7 @@ export interface MenuContextProps {
   /**
    * 菜单是否收起状态
    */
-  inlineCollapsed?: boolean;
+  collapsed?: boolean;
   /**
    * 菜单缩进宽度
    */

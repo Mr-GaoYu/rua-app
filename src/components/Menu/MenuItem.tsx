@@ -46,8 +46,8 @@ const MenuItem: React.FC<MenuItemProps> = (props) => {
     }
   }, [href]);
 
-  const onClick = () => {
-    
+  const onClick: React.MouseEventHandler<HTMLElement> = e => {
+
   }
 
   return (
