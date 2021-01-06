@@ -9,10 +9,10 @@ export const linkIsActive = (
   const currentlyOnOneClickTab = locationSearch.match(/one-click/gi);
   const isOneClickTab = href.match(/one-click/gi);
 
-
   if (currentlyOnOneClickTab) {
     return isOneClickTab;
   }
 
   return isPathOneOf([href, ...activeLinks], locationPathname);
 };
+

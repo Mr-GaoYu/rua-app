@@ -2,113 +2,61 @@ import React from "react";
 import classNames from "classnames";
 import ListItem from "src/components/core/ListItem";
 import ListItemText from "src/components/core/ListItemText";
-import { NavLink, NavLinkProps } from 'react-router-dom';
-import {
-  createStyles,
-  Theme,
-  withStyles,
-  WithStyles,
-  CSSProperties,
-} from "src/components/core/styles";
+import { NavLink, NavLinkProps } from "react-router-dom";
+import MenuContext from "./MenuContext";
+import { RenderIconType } from "./interface";
 
-type ClassNames = "menuItem" | 'active';
-
-const styles = (theme: Theme) =>
-  createStyles({
-    menuItem: {
-      display: "flex",
-      alignItems: "center",
-      cursor: "pointer",
-      transition: theme.transitions.create(["color"]),
-      color: theme.color.menuText,
-      textDecoration: "none",
-      fontSize: "0.9rem",
-      maxHeight: 42,
-      "&:hover,&:focus": {
-        color: theme.color.menuActiveText,
-      },
-    },
-    active: {
-      color: theme.color.menuActiveText,
-    }
-  });
-
-
-export interface Props extends NavLinkProps {
+export interface MenuItemProps extends Omit<NavLinkProps, "to"> {
+  eventKey?: React.Key;
+  level?: number;
+  role?: string;
+  title?: string;
+  href?: string;
   disabled?: boolean;
-  suffix?: JSX.Element;
-  prefix?: any;
-  prefixClasses?: string;
-  suffixClasses?: string;
-  key: string;
-  title: string;
-  onClick?: () => void;
+  attribute?: Record<string, string>;
+  prefixComponent?: RenderIconType;
+  suffixComponent?: RenderIconType;
+  className?: string;
 }
 
-export type CombinedProps = Props & WithStyles<ClassNames>;
-
-
-const MenuItem: React.FC<CombinedProps> = (props) => {
+const MenuItem: React.FC<MenuItemProps> = (props) => {
   const {
-    to,
-    prefix,
-    suffix,
+    href,
+    eventKey,
+    prefixComponent,
+    suffixComponent,
     title,
-    prefixClasses,
-    suffixClasses,
-    classes,
     ...rest
   } = props;
 
+  const { activeKey, selectedKeys } = React.useContext(MenuContext);
+
+  const isSelected = React.useMemo(
+    () => selectedKeys.indexOf(eventKey) !== -1,
+    [selectedKeys, eventKey]
+  );
+
+  const renderNavLink = React.useMemo(() => {
+    if (href) {
+      return React.forwardRef(
+        (linkProps: MenuItemProps, ref: React.Ref<HTMLAnchorElement>) => (
+          <NavLink exact to={href} ref={ref} {...linkProps} />
+        )
+      );
+    }
+  }, [href]);
+
+  const onClick = () => {
+    
+  }
+
   return (
-    <ListItem
-      component={LinkItem}
-      to={to}
-      {...rest}
-      button
-      className={classNames({
-        [classes.menuItem]: true,
-        [classes.active]: true,
-      })}
-    >
-      {prefix && (
-        <div
-          className={classNames({
-            [prefixClasses]: true,
-            prefix: true,
-          })}
-        >
-          {prefix}
-        </div>
-      )}
-      <ListItemText
-        primary={title}
-        disableTypography={true}
-        className={classNames({
-          textLink: true,
-        })}
-      />
-      {suffix && (
-        <div
-          className={classNames({
-            [suffixClasses]: true,
-            suffix: true,
-          })}
-        >
-          {suffix}
-        </div>
-      )}
+    <ListItem component={renderNavLink} {...rest} button>
+      {prefixComponent && <div>{prefixComponent}</div>}
+      <ListItemText primary={title} disableTypography={true} />
+      {suffixComponent && <div>{suffixComponent}</div>}
     </ListItem>
   );
 };
 
-const styled = withStyles(styles);
-
-export default styled(MenuItem);
-
-
-export const LinkItem: React.ExoticComponent<NavLinkProps> = React.forwardRef(
-  (props: NavLinkProps, ref: React.Ref<HTMLAnchorElement>) => (
-    <NavLink exact {...props} innerRef={ref} />
-  ))
-
+export default MenuItem;

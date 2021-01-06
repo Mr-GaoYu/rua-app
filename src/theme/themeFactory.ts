@@ -67,15 +67,17 @@ const cmrTextColors = {
 };
 
 const primaryColors = {
-  main: '#3683dc',
-  light: '#4d99f1',
-  dark: '#2466b3',
-  text: '#606469',
-  headline: '#32363c',
-  divider: '#f4f4f4',
-  offBlack: '#444',
-  white: '#fff'
+  primary: '#727cf5',
+  secondary: '#6c757d',
+  success: '#0acf97',
+  danger: '#fa5c7c',
+  warning:'#ffbc00',
+  info: '#39afd1',
+  light: '#e3eaef',
+  dark: '#313a46'
 };
+
+
 
 const cmrBGColors = {
   bgPaper: '#ffffff',
@@ -89,7 +91,7 @@ const primaryFonts = {
 
 const iconCircleAnimation = {
   '& .circle': {
-    fill: primaryColors.main,
+    fill: primaryColors.primary,
     transition: 'fill .2s ease-in-out .2s'
   },
   '& .outerCircle': {
@@ -120,7 +122,7 @@ const themeDefaults: ThemeDefaults = ({ spacingOverride: spacingUnit }) => {
       palette: {
         primary: primaryColors,
         text: {
-          primary: primaryColors.text
+          primary: primaryColors.primary
         },
 
       }
@@ -232,7 +234,7 @@ const themeDefaults: ThemeDefaults = ({ spacingOverride: spacingUnit }) => {
           transition: 'border 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms'
         },
         switchBase: {
-          color: primaryColors.main,
+          color: primaryColors.primary,
           padding: 16,
           '&$checked': {
             transform: 'translateX(20px)'
