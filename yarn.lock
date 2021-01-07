@@ -2803,6 +2803,13 @@
   dependencies:
     "@types/react" "^16"
 
+"@types/react-is@^17.0.0":
+  version "17.0.0"
+  resolved "https://registry.npm.taobao.org/@types/react-is/download/@types/react-is-17.0.0.tgz#6b60190ae60591ae0c83d6f3854e61e08f5a7976"
+  integrity sha1-a2AZCuYFka4Mg9bzhU5h4I9aeXY=
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-redux@^7.1.14":
   version "7.1.14"
   resolved "https://registry.npm.taobao.org/@types/react-redux/download/@types/react-redux-7.1.14.tgz#694609eb906ffc2da4b01f0a1e4f27c1937ac33a"

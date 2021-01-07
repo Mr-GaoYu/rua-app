@@ -1,38 +1,34 @@
 import React from "react";
-import List from "src/components/core/List";
-import ListItem from "src/components/core/ListItem";
-import ListItemText from "src/components/core/ListItemText";
-import ListItemIcon from "src/components/core/ListItemIcon";
+import MenuItem from "./MenuItem";
 import Collapse from "src/components/core/Collapse";
-import ExpandLess from "@material-ui/icons/ExpandLess";
-import ExpandMore from "@material-ui/icons/ExpandMore";
-import MenuItem, { MenuItemProps } from "./MenuItem";
-
-import MenuContext from "./MenuContext";
-
+import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 export interface SubMenuProps {
-  title?: string;
   eventKey?: string;
+  title: string;
   disabled?: boolean;
-  level?: number;
+  component?: React.ExoticComponent;
+  prepend?: JSX.Element;
+  append?: JSX.Element;
+  collapsed?: boolean;
 }
 
 const SubMenu: React.FC<SubMenuProps> = (props) => {
-  const { eventKey, title, children } = props;
-  const { openKeys, onOpenChange } = React.useContext(MenuContext);
+  const { title, prepend, children, collapsed } = props;
 
-  const isOpen = React.useMemo(() => openKeys.indexOf(eventKey) > -1, [
-    openKeys,
-  ]);
+  const append = props.append ? <ChevronRightIcon /> : <ExpandMoreIcon />;
+
+  const [open, setOpen] = React.useState<boolean>(false);
+
+  const onOpenChange = () => {
+    const key = props.eventKey
+  }
+
 
   return (
     <React.Fragment>
-      <MenuItem title={title} key={eventKey} />
-      <Collapse in={isOpen} timeout="auto" unmountOnExit>
-        <List component="div" disablePadding>
-          {children}
-        </List>
-      </Collapse>
+      <MenuItem title={title} prepend={prepend} append={append} />
+      <Collapse in={open}>{children}</Collapse>
     </React.Fragment>
   );
 };

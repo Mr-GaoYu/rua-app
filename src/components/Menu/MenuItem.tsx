@@ -1,60 +1,61 @@
 import React from "react";
 import classNames from "classnames";
-import ListItem from "src/components/core/ListItem";
-import ListItemText from "src/components/core/ListItemText";
-import { NavLink, NavLinkProps } from "react-router-dom";
-import MenuContext from "./MenuContext";
-import { RenderIconType } from "./interface";
+import ListItem, { ListItemProps } from "src/components/core/ListItem";
+import ListItemText, {
+  ListItemTextProps,
+} from "src/components/core/ListItemText";
 
-export interface MenuItemProps extends Omit<NavLinkProps, "to"> {
-  eventKey?: React.Key;
-  level?: number;
-  role?: string;
-  title?: string;
-  href?: string;
+export interface MenuItemProps {
+  eventKey?: string;
+  title: string;
   disabled?: boolean;
-  attribute?: Record<string, string>;
-  prefixComponent?: RenderIconType;
-  suffixComponent?: RenderIconType;
+  component?: React.ExoticComponent;
+  prepend?: JSX.Element;
+  append?: JSX.Element;
+  level?: number;
   className?: string;
+  style?: React.CSSProperties;
+  collapsed?: boolean;
+  listItemProps?: Omit<
+    ListItemProps,
+    "component" | "disabled" | "button" | "alignItems"
+  >;
+  ListItemTextProps?: Omit<ListItemTextProps, "disableTypography" | "primary">;
 }
 
 const MenuItem: React.FC<MenuItemProps> = (props) => {
   const {
-    href,
-    eventKey,
-    prefixComponent,
-    suffixComponent,
+    prepend,
+    append,
+    component,
+    disabled,
     title,
-    ...rest
+    className,
+    style,
+    collapsed,
+    listItemProps,
+    ListItemTextProps,
   } = props;
 
-  const { activeKey, selectedKeys } = React.useContext(MenuContext);
-
-  const isSelected = React.useMemo(
-    () => selectedKeys.indexOf(eventKey) !== -1,
-    [selectedKeys, eventKey]
-  );
-
-  const renderNavLink = React.useMemo(() => {
-    if (href) {
-      return React.forwardRef(
-        (linkProps: MenuItemProps, ref: React.Ref<HTMLAnchorElement>) => (
-          <NavLink exact to={href} ref={ref} {...linkProps} />
-        )
-      );
-    }
-  }, [href]);
-
-  const onClick = () => {
-    
-  }
-
   return (
-    <ListItem component={renderNavLink} {...rest} button>
-      {prefixComponent && <div>{prefixComponent}</div>}
-      <ListItemText primary={title} disableTypography={true} />
-      {suffixComponent && <div>{suffixComponent}</div>}
+    <ListItem
+      {...listItemProps}
+      button
+      alignItems="center"
+      component={component}
+      disabled={disabled}
+      className={className}
+      style={style}
+    >
+      {!!prepend && <div className="prepend">{prepend}</div>}
+      {title && !collapsed && (
+        <ListItemText
+          {...ListItemTextProps}
+          disableTypography={true}
+          primary={title}
+        />
+      )}
+      {!!append && !collapsed && <div className="append">{append}</div>}
     </ListItem>
   );
 };

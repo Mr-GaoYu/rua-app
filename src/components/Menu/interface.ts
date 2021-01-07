@@ -16,3 +16,5 @@ export type SelectEventHandler = (info: SelectInfo) => void;
 export type RenderIconType =
   | React.ReactNode
   | ((props: any) => React.ReactNode);
+
+export type OpenEventHandler = (keys: React.Key[]) => void;

@@ -1,18 +1,30 @@
-import isPathOneOf from "src/utilities/routing/isPathOneOf";
+import React from 'react';
+import { isFragment } from 'react-is';
 
-export const linkIsActive = (
-  href: string,
-  locationSearch: string,
-  locationPathname: string,
-  activeLinks: Array<string> = []
-) => {
-  const currentlyOnOneClickTab = locationSearch.match(/one-click/gi);
-  const isOneClickTab = href.match(/one-click/gi);
+export const noop = () =>{}
+export interface Option {
+  keepEmpty?: boolean;
+}
 
-  if (currentlyOnOneClickTab) {
-    return isOneClickTab;
-  }
+export const  toArray = (
+  children: React.ReactNode,
+  option: Option = {},
+): React.ReactElement[] => {
+  let ret: React.ReactElement[] = [];
 
-  return isPathOneOf([href, ...activeLinks], locationPathname);
-};
+  React.Children.forEach(children, (child: any) => {
+    if ((child === undefined || child === null) && !option.keepEmpty) {
+      return;
+    }
 
+    if (Array.isArray(child)) {
+      ret = ret.concat(toArray(child));
+    } else if (isFragment(child) && child.props) {
+      ret = ret.concat(toArray(child.props.children, option));
+    } else {
+      ret.push(child);
+    }
+  });
+
+  return ret;
+}
