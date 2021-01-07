@@ -20,9 +20,6 @@ const SubMenu: React.FC<SubMenuProps> = (props) => {
 
   const [open, setOpen] = React.useState<boolean>(false);
 
-  const onOpenChange = () => {
-    const key = props.eventKey
-  }
 
 
   return (

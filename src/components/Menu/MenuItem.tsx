@@ -4,6 +4,7 @@ import ListItem, { ListItemProps } from "src/components/core/ListItem";
 import ListItemText, {
   ListItemTextProps,
 } from "src/components/core/ListItemText";
+import { MenuClickEventHandler } from "./interface";
 
 export interface MenuItemProps {
   eventKey?: string;
@@ -16,6 +17,9 @@ export interface MenuItemProps {
   className?: string;
   style?: React.CSSProperties;
   collapsed?: boolean;
+  onClick?: MenuClickEventHandler;
+  isSelected?: boolean;
+  multiple?: boolean;
   listItemProps?: Omit<
     ListItemProps,
     "component" | "disabled" | "button" | "alignItems"
@@ -36,6 +40,20 @@ const MenuItem: React.FC<MenuItemProps> = (props) => {
     listItemProps,
     ListItemTextProps,
   } = props;
+
+  const onClick: React.MouseEventHandler<HTMLElement> = (e) => {
+    const { isSelected, eventKey, multiple, disabled } = props;
+
+    if (disabled) {
+      return;
+    }
+
+    if (multiple) {
+      if (isSelected) {
+      } else {
+      }
+    }
+  };
 
   return (
     <ListItem

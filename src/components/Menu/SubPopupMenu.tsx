@@ -16,7 +16,9 @@ const SubPopupMenu: React.FC<SubPopupMenuProps> = (props) => {
 
   return (
     <React.Fragment>
+        
       {props.children}
+
       <Popover
         id="mouse-over-popover"
         open={false}
