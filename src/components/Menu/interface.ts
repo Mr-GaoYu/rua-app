@@ -18,3 +18,8 @@ export type RenderIconType =
   | ((props: any) => React.ReactNode);
 
 export type OpenEventHandler = (keys: React.Key[]) => void;
+
+export type MenuHoverEventHandler = (info: {
+  key: React.Key;
+  domEvent: React.MouseEvent<HTMLElement>;
+}) => void;

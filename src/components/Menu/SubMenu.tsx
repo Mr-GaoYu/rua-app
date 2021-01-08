@@ -1,31 +1,34 @@
 import React from "react";
 import MenuItem from "./MenuItem";
 import Collapse from "src/components/core/Collapse";
-import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-export interface SubMenuProps {
+import List from "src/components/core/List";
+import ExpandLess from "@material-ui/icons/ExpandLess";
+import ExpandMore from "@material-ui/icons/ExpandMore";
+
+interface SubMenuProps {
   eventKey?: string;
-  title: string;
   disabled?: boolean;
-  component?: React.ExoticComponent;
-  prepend?: JSX.Element;
-  append?: JSX.Element;
-  collapsed?: boolean;
 }
 
 const SubMenu: React.FC<SubMenuProps> = (props) => {
-  const { title, prepend, children, collapsed } = props;
+  const { children } = props;
 
-  const append = props.append ? <ChevronRightIcon /> : <ExpandMoreIcon />;
+  const [open, setOpen] = React.useState(true);
 
-  const [open, setOpen] = React.useState<boolean>(false);
+  const onClick = () => {
+    setOpen(!open);
+  };
 
-
+  const appendIcon = open ? <ExpandLess /> : <ExpandMore />;
 
   return (
     <React.Fragment>
-      <MenuItem title={title} prepend={prepend} append={append} />
-      <Collapse in={open}>{children}</Collapse>
+      <MenuItem title="UI Kit" append={appendIcon} onClick={onClick}/>
+      <Collapse in={open} timeout="auto" unmountOnExit>
+        <List component="div" disablePadding>
+          {children}
+        </List>
+      </Collapse>
     </React.Fragment>
   );
 };
