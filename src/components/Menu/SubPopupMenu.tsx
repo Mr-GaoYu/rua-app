@@ -3,40 +3,25 @@ import Popover from "src/components/core/Popover";
 import { toArray } from "./utils";
 
 export interface SubPopupMenuProps {
-  visible?: boolean;
-  eventKey?: React.Key;
+  level?: number;
+  indent?: 30;
 }
 
 const SubPopupMenu: React.FC<SubPopupMenuProps> = (props) => {
-  const { visible } = props;
+  const renderMenuItem = (child: React.ReactElement, i: number) => {
+    if (!child) {
+      return null;
+    }
 
-  const renderMenuItem = (c: React.ReactElement, i: number) => {
-    return c;
+    const newChildProps = {}
+
+    return React.cloneElement(child,{
+        ...newChildProps,
+        key: i
+    })
   };
 
-  return (
-    <React.Fragment>
-        
-      {props.children}
-
-      <Popover
-        id="mouse-over-popover"
-        open={false}
-        anchorOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "left",
-        }}
-      >
-        {toArray(props.children).map((c: React.ReactElement, i) =>
-          renderMenuItem(c, i)
-        )}
-      </Popover>
-    </React.Fragment>
-  );
+  return <React.Fragment></React.Fragment>;
 };
 
 export default SubPopupMenu;

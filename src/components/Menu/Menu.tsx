@@ -7,6 +7,29 @@ import {
   SelectEventHandler,
 } from "./interface";
 import { noop } from "./utils";
+import List from "src/components/core/List";
+import classNames from "classnames";
+import { makeStyles, createStyles, Theme } from "src/components/core/styles";
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    menu: {
+      minWidth: 250,
+      maxWidth: 250,
+      zIndex: 10,
+      backgroundColor: "#ffffff",
+      position: "relative",
+      boxShadow: "0 0 35px 0 rgba(154,161,171,.15)",
+      transition: theme.transitions.create(["all"]),
+    },
+    collapsed: {
+      minWidth: 70,
+      maxWidth: 70,
+      zIndex: 5,
+      paddingTop: 0,
+    },
+  })
+);
 
 export interface MenuProps {
   openKeys?: string[];
@@ -25,91 +48,27 @@ export interface MenuProps {
   activeKey?: string;
   defaultActiveFirst?: boolean;
   style?: React.CSSProperties;
-
 }
 
 const Menu: React.FC<MenuProps> = (props) => {
-  const [openKeys, setOpenKeys] = React.useState(() => {
-    if ("openKeys" in props) {
-      return props.openKeys || [];
-    }
-    return props.defaultOpenKeys;
-  });
-  const [selectedKeys, setSelectedKeys] = React.useState(() => {
-    if ("selectedKeys" in props) {
-      return props.selectedKeys || [];
-    }
-    return props.defaultSelectedKeys;
-  });
-
-  const onSelect = (selectInfo: SelectInfo) => {
-    const { selectable, multiple } = props;
-    if (selectable) {
-      const selectedKey = selectInfo.key;
-      let newSelectedKeys = selectedKeys.concat();
-
-      if (multiple) {
-        newSelectedKeys = newSelectedKeys.concat([selectedKey]);
-      } else {
-        newSelectedKeys = [selectedKey];
-      }
-      if (!("selectedKeys" in props)) {
-        setSelectedKeys(newSelectedKeys);
-      }
-      props.onSelect({
-        ...selectInfo,
-        selectedKeys,
-      });
-    }
-  };
-
-  const onDeselect = (selectInfo: SelectInfo) => {
-    const { selectable } = props;
-
-    if (selectable) {
-      let newSelectedKeys = selectedKeys.concat();
-      const selectedKey = selectInfo.key;
-      const index = newSelectedKeys.indexOf(selectedKey);
-
-      if (index !== -1) {
-        newSelectedKeys.splice(index, 1);
-      }
-      if (!("selectedKeys" in props)) {
-        setSelectedKeys(newSelectedKeys);
-      }
-
-      props.onDeselect({
-        ...selectInfo,
-        selectedKeys,
-      });
-    }
-  };
-
-  const onClick: MenuClickEventHandler = (e) => {
-    const { onOpenChange } = props;
-    if (!("openKeys" in props)) {
-      setOpenKeys([]);
-      onOpenChange([]);
-    }
-    props.onClick(e);
-  };
-
-  const onOpenChange = (event) => {
-    let newOpenKeys = openKeys.concat();
-
-    if (Array.isArray(event)) {
-    }
-  };
+  const { collapsed, children } = props;
+  const classes = useStyles();
 
 
+  console.log(children,22)
   return (
-    <MenuContext.Provider
-      value={{
-        selectedKeys,
-        openKeys,
-      }}
-    >
-      <SubPopupMenu>{props.children}</SubPopupMenu>
+    <MenuContext.Provider value={{
+      collapsed
+    }}>
+      <List
+        disablePadding={true}
+        className={classNames({
+          [classes.menu]: true,
+          [classes.collapsed]: collapsed,
+        })}
+      >
+        {children}
+      </List>
     </MenuContext.Provider>
   );
 };
@@ -117,9 +76,6 @@ const Menu: React.FC<MenuProps> = (props) => {
 Menu.defaultProps = {
   defaultSelectedKeys: [],
   defaultOpenKeys: [],
-  onClick: noop,
-  onSelect: noop,
-  onDeselect: noop,
 };
 
 export default Menu;

@@ -11,7 +11,6 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     menuItem: {
       whiteSpace: "nowrap",
-      padding: "15px 30px",
       color: "#6c757d",
       "& .prepend,& .append": {
         lineHeight: 0,
@@ -28,82 +27,50 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export interface MenuItemProps {
+export interface MenuItemProps extends React.HTMLAttributes<HTMLElement> {
   title: string;
-  href?: string;
   prepend?: JSX.Element;
   append?: JSX.Element;
   onClick?: any;
   collapsed?: boolean;
+  indent?: number;
+  level?: number;
+  eventKey?: React.Key;
+  component?: React.ElementType;
 }
-
-export interface ListItemLinkProps extends NavLinkProps {}
-
-export interface ListItemComponentProps
-  extends React.HTMLAttributes<HTMLElement> {
-  href?: string | null;
-  collapsed?: boolean;
-}
-
-export const ListItemLink: React.ExoticComponent<NavLinkProps> = React.forwardRef(
-  (props: ListItemLinkProps, ref: React.Ref<HTMLAnchorElement>) => (
-    <NavLink exact {...props} innerRef={ref} />
-  )
-);
-
-export const ListItemComponent: React.ExoticComponent<ListItemComponentProps> = React.forwardRef(
-  (props: ListItemComponentProps, ref: React.Ref<HTMLDivElement>) => {
-    const { collapsed, ...rest } = props;
-
-    const component =
-      typeof props.href === "string" ? (
-        <ListItem
-          {...rest}
-          disableGutters={true}
-          button
-          component={ListItemLink}
-          to={props.href}
-        />
-      ) : (
-        <ListItem {...rest} disableGutters={true} button />
-      );
-
-    return <div ref={ref}>{component}</div>;
-  }
-);
 
 const MenuItem: React.FC<MenuItemProps> = (props) => {
-  const { title, href, prepend, append, onClick, collapsed } = props;
+  const { title, prepend, append, onClick, collapsed, component } = props;
   const classes = useStyles();
+
+  const style = {
+    ...props.style,
+    paddingLeft: props.indent * props.level,
+  };
+
   return (
     <React.Fragment>
-      <ListItemComponent
+      <ListItem
         className={classNames({
           [classes.menuItem]: true,
         })}
-        href={href}
+        button
+        component={component}
+        disableGutters={true}
         onClick={onClick}
-        collapsed={collapsed}
+        style={style}
       >
         {prepend && <div className="prepend">{prepend}</div>}
         <ListItemText primary={title} disableTypography={true} />
         {append && <div className="append">{append}</div>}
-      </ListItemComponent>
-      <Popover
-        open={false}
-        anchorOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "left",
-        }}
-      >
-        The content of the Popover.
-      </Popover>
+      </ListItem>
     </React.Fragment>
   );
+};
+
+MenuItem.defaultProps = {
+  indent: 30,
+  level: 1,
 };
 
 export default MenuItem;
