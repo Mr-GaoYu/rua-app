@@ -1,25 +1,24 @@
-export interface MenuInfo {
-  key: React.Key;
-  keyPath: React.Key[];
-  item: React.ReactInstance;
-  domEvent: React.MouseEvent<HTMLElement>;
+import React from 'react';
+
+export interface StandardProps {
+  prefixClass?: string;
+  className?: string;
+  style?: React.CSSProperties;
+  children?: React.ReactNode;
 }
 
-export interface SelectInfo extends MenuInfo {
-  selectedKeys?: React.Key[];
+export interface WithAsProps<Component extends React.ElementType | string = React.ElementType>
+  extends StandardProps {
+  component?: Component;
 }
 
-export type MenuClickEventHandler = (info: MenuInfo) => void;
-
-export type SelectEventHandler = (info: SelectInfo) => void;
-
-export type RenderIconType =
-  | React.ReactNode
-  | ((props: any) => React.ReactNode);
-
-export type OpenEventHandler = (keys: React.Key[]) => void;
-
-export type MenuHoverEventHandler = (info: {
-  key: React.Key;
-  domEvent: React.MouseEvent<HTMLElement>;
-}) => void;
+export interface RefForwardingComponent<T extends React.ElementType, P = unknown> {
+  <Component extends React.ElementType = T>(
+    props: React.PropsWithChildren<WithAsProps<Component> & P>,
+    context?: any
+  ): React.ReactElement | null;
+  propTypes?: any;
+  contextTypes?: any;
+  defaultProps?: Partial<P>;
+  displayName?: string;
+}
