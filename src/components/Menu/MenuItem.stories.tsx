@@ -11,6 +11,6 @@ export default {
 
 export const NavBar = () => (
   <Menu>
-    <MenuItem icon={<DeleteIcon />}>Dashboard</MenuItem>
+    <MenuItem expandIcon={<DeleteIcon />}>Dashboard</MenuItem>
   </Menu>
 );

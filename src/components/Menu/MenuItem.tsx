@@ -3,115 +3,152 @@ import { WithComponentProps, RefForwardingComponent } from "src/@types/common";
 import ListItem from "src/components/core/ListItem";
 import { createStyles, makeStyles, Theme } from "src/components/core/styles";
 import classNames from "classnames";
+import { SelectEventHandler, MenuClickEventHandler, MenuHoverEventHandler, DestroyEventHandler } from './interface';
+import { MenuContext, MenuContextType } from "./Menu";
 
 const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    menuItem: {
-      padding: "15px 30px",
-      transition: theme.transitions.create(["all"]),
-      backgroundColor: "transparent",
-      color: "#6c757d",
-      "& svg": {
-        width: 20,
-        height: 20,
-        margin: "0 10px 0 3px",
-      },
-    },
-  })
+    createStyles({
+        menuItem: {
+            padding: "15px 30px",
+            transition: theme.transitions.create(["all"]),
+            backgroundColor: "transparent",
+            color: "#6c757d",
+            "& svg": {
+                width: 20,
+                height: 20,
+                margin: "0 10px 0 3px",
+            },
+        },
+    })
 );
 export interface MenuItemProps<T = string>
-  extends WithComponentProps,
-    Omit<React.HTMLAttributes<HTMLElement>, "onSelect"> {
-  /** The value of the current option */
-  eventKey?: T;
+    extends WithComponentProps,
+    Omit<React.HTMLAttributes<HTMLElement>,
+    "onSelect" | 'onClick' | 'onMouseEnter' | 'onMouseLeave'> {
+    /** The value of the current option */
+    eventKey?: T;
 
-  /** Diabled status */
-  disabled?: boolean;
+    /** Diabled status */
+    disabled?: boolean;
 
-  /** Define menu indent width */
-  indent?: number;
+    /** Define menu indent width */
+    indent?: number;
 
-  /** Define the layer number of menu */
-  level?: number;
+    /** Define the layer number of menu */
+    level?: number;
 
-  /** Define menuitem icon */
-  icon?: React.ReactElement;
+    /** Define menuitem icon */
+    expandIcon?: React.ReactElement;
 
-  button?: boolean;
+    /** If true, the list item will be a button (using ButtonBase). 
+     * Props intended for ButtonBase can then be applied to ListItem. */
+    button?: boolean;
 
-  multiple?: boolean;
-  isSelected?: boolean;
-  divider?: boolean;
-  active?: boolean;
-  onSelect?: (eventKey: T, event: React.SyntheticEvent) => void;
+    multiple?: boolean;
+    isSelected?: boolean;
+    divider?: boolean;
+    active?: boolean;
+    onSelect?: SelectEventHandler<T>;
+    onDeselect?: SelectEventHandler<T>;
+    onClick?: MenuClickEventHandler<T>;
+    onMouseEnter?: MenuHoverEventHandler<T>;
+    onMouseLeave?: MenuHoverEventHandler<T>;
+    onDestroy?: DestroyEventHandler;
 }
 
 const defaultProps: Partial<MenuItemProps> = {
-  component: ListItem,
-  prefixClass: "menu-item",
-  button: false,
+    component: ListItem,
+    prefixClass: "menu-item",
+    button: false,
 };
 
 const MenuItem: RefForwardingComponent<
-  typeof ListItem,
-  MenuItemProps
+    typeof ListItem,
+    MenuItemProps
 > = React.forwardRef((props: MenuItemProps, ref: React.Ref<HTMLLIElement>) => {
-  const {
-    component: Component,
-    onClick,
-    onSelect,
-    disabled,
-    eventKey,
-    icon,
-    children,
-    style,
-    button,
-    className,
-    ...rest
-  } = props;
+    const {
+        component: Component,
+        onClick,
+        onSelect,
+        onDeselect,
+        onMouseEnter,
+        onMouseLeave,
+        disabled,
+        eventKey,
+        isSelected,
+        expandIcon,
+        children,
+        style,
+        multiple,
+        className,
+        ...rest
+    } = props;
 
-  const classes = useStyles();
+    const { selectedKeys } = React.useContext<MenuContextType>(MenuContext);
 
-  const handleClick = React.useCallback(
-    (event: React.MouseEvent<HTMLElement>) => {
-      if (!disabled) {
-        onSelect?.(eventKey, event);
-        onClick?.(event);
-      }
-    },
-    [disabled, onSelect, eventKey, onClick]
-  );
+    const classes = useStyles();
 
-  const handleMouseLeave = React.useCallback(
-    (event: React.MouseEvent<HTMLElement>) => {},
-    []
-  );
+    const handleClick = React.useCallback(
+        (event: React.MouseEvent<HTMLElement>) => {
+            onClick?.(eventKey, event);
 
-  const handleMouseEnter = React.useCallback(
-    (event: React.MouseEvent<HTMLElement>) => {},
-    []
-  );
+            if (multiple) {
+                if (isSelected) {
+                    onDeselect(eventKey, event, selectedKeys)
+                } else {
+                    onSelect?.(eventKey, event, selectedKeys);
+                }
+            } else if (!isSelected) {
+                onSelect?.(eventKey, event, selectedKeys);
+            }
+        },
+        [onSelect, eventKey, onClick, selectedKeys]
+    );
 
-  const handleKeyDown =  React.useCallback(
-    (event: React.KeyboardEvent<HTMLElement>) => {},
-    []
-  );
+    const handleMouseLeave = React.useCallback(
+        (event: React.MouseEvent<HTMLElement>) => {
+            onMouseEnter?.(eventKey, event);
+        },
+        [eventKey, onMouseLeave]
+    );
 
-  return (
-    <Component
-      {...rest}
-      onClick={handleClick}
-      ref={ref}
-      style={style}
-      disableGutters
-      className={classNames(className, {
-        [classes.menuItem]: true,
-      })}
-    >
-      {icon}
-      {children}
-    </Component>
-  );
+    const handleMouseEnter = React.useCallback(
+        (event: React.MouseEvent<HTMLElement>) => {
+            onMouseEnter?.(eventKey, event);
+        },
+        [eventKey, onMouseEnter]
+    );
+
+    const handleKeyDown = React.useCallback(
+        (event: React.KeyboardEvent<HTMLElement>) => {
+            // const { code } = event;
+            // if (code === code.ENTER) {
+            //     onClick?.(eventKey, event as any);
+            //     return true;
+            //   }
+        },
+        [eventKey]
+    );
+
+    const mouseEvent = {
+        onClick: !disabled ?? handleClick,
+        onMouseLeave: !disabled ?? handleMouseLeave,
+        onMouseEnter: !disabled ?? handleMouseEnter
+    }
+
+    return (
+        <Component
+            {...rest}
+            {...mouseEvent}
+            ref={ref}
+            style={style}
+            disableGutters
+           
+        >
+            {expandIcon}
+            {children}
+        </Component>
+    );
 });
 
 MenuItem.displayName = "MenuItem";

@@ -1,5 +1,23 @@
 import React from 'react';
 
+export type DestroyEventHandler = (key: React.Key) => void;
+
+export type MenuClickEventHandler<T> = (
+  eventKey: T,
+  event: React.SyntheticEvent
+) => void
+
+export type MenuHoverEventHandler<T> = (
+  eventKey: T,
+  event: React.MouseEvent<HTMLElement>
+) => void;
+
+export type SelectEventHandler<T> = (
+  eventKey: T,
+  event: React.SyntheticEvent,
+  selectedKeys: T[],
+) => void
+
 export interface StandardProps {
   prefixClass?: string;
   className?: string;
