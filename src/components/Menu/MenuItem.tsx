@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme: Theme) =>
       padding: "15px 30px",
       transition: theme.transitions.create(["all"]),
       backgroundColor: "transparent",
-      color: '#6c757d',
+      color: "#6c757d",
       "& svg": {
         width: 20,
         height: 20,
@@ -39,7 +39,6 @@ export interface MenuItemProps<T = string>
 
   button?: boolean;
 
-  role?: string;
   multiple?: boolean;
   isSelected?: boolean;
   divider?: boolean;
@@ -81,6 +80,21 @@ const MenuItem: RefForwardingComponent<
       }
     },
     [disabled, onSelect, eventKey, onClick]
+  );
+
+  const handleMouseLeave = React.useCallback(
+    (event: React.MouseEvent<HTMLElement>) => {},
+    []
+  );
+
+  const handleMouseEnter = React.useCallback(
+    (event: React.MouseEvent<HTMLElement>) => {},
+    []
+  );
+
+  const handleKeyDown =  React.useCallback(
+    (event: React.KeyboardEvent<HTMLElement>) => {},
+    []
   );
 
   return (

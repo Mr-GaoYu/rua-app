@@ -4,6 +4,7 @@ import MenuToggle from "./MenuToggle";
 import PopupMenu from "./PopupMenu";
 import { MenuContext, MenuContextType } from "./Menu";
 import { WithComponentProps, RefForwardingComponent } from "src/@types/common";
+import Collapse from 'src/components/core/Collapse'
 
 export type TriggerPopup = "click" | "hover";
 export interface SubMenuProps<T = string>
@@ -73,7 +74,7 @@ const SubMenu: RefForwardingComponent<"li", SubMenuProps> = React.forwardRef(
 
    
 
-    const MenuElement = <PopupMenu ref={overlayTarget}></PopupMenu>;
+    const MenuElement = <Collapse ref={overlayTarget}></Collapse>;
 
     const toggleElement = (
       <MenuToggle ref={triggerTarget} button role="button">
