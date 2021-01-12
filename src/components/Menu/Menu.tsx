@@ -1,10 +1,10 @@
 import React from "react";
-import List from "src/components/core/List";
 import PropTypes from "prop-types";
 import { WithComponentProps, RefForwardingComponent } from "src/@types/common";
 import useControlled from "src/hooks/useControlled";
-import { cloneElement } from "src/utilities/ReactChildren";
-import { equals } from "ramda";
+import { omit } from "ramda";
+import { SelectEventHandler, MenuClickEventHandler } from "./interface";
+import PopupMenu from './PopupMenu'
 
 export interface MenuProps<T = string> extends WithComponentProps {
   /** Whether the menu is in the folded state */
@@ -12,6 +12,12 @@ export interface MenuProps<T = string> extends WithComponentProps {
 
   /** Whether multiple selections are allowed */
   multiple?: boolean;
+
+  /** Define menu indent width */
+  indent?: number;
+
+  /** Define the layer number of menu */
+  level?: number;
 
   /** Is it allowed to select */
   selectable?: boolean;
@@ -37,38 +43,35 @@ export interface MenuProps<T = string> extends WithComponentProps {
   /** Defines the currently active menu item */
   activeKey?: T;
 
-  onOpenChange?: (openKeys: T[], event: React.SyntheticEvent) => void;
+  /** called when open/close submenu */
+  onOpenChange?: (openKeys: T[]) => void;
 
-  onSelect?: (eventKey: T[], event: React.SyntheticEvent) => void;
+  /** called when select a menuitem */
+  onSelect?: SelectEventHandler<T>;
 
-  onDeselect?: (eventKey: T, event: React.SyntheticEvent) => void;
+  /** called when deselect a menu item. only called when allow multiple */
+  onDeselect?: SelectEventHandler<T>;
 
-  onClick?: (eventKey: T, event: React.SyntheticEvent) => void;
-
-  onDestroy?: (key: React.Key) => void;
+  /** called when click a menu item */
+  onClick?: MenuClickEventHandler<T>;
 }
 
 export interface MenuContextType<T = string> {
   selectedKeys?: T[];
   openKeys?: T[];
-  collapsed?: boolean;
-  onOpenChange?: (openKeys: T, event: React.SyntheticEvent) => void;
-  onSelect?: (eventKey: T, event: React.SyntheticEvent) => void;
 }
 
 export const MenuContext = React.createContext(null);
 
 const defaultProps: Partial<MenuProps> = {
-  component: List,
+  component: PopupMenu,
   prefixClass: "menu",
   selectable: true,
   defaultOpenKeys: [],
   defaultSelectedKeys: [],
-  className: "",
-  style: {},
 };
 
-const Menu: RefForwardingComponent<typeof List, MenuProps> = React.forwardRef(
+const Menu: RefForwardingComponent<typeof PopupMenu, MenuProps> = React.forwardRef(
   (props: MenuProps, ref: React.Ref<HTMLLIElement>) => {
     const {
       component: Component,
@@ -76,18 +79,14 @@ const Menu: RefForwardingComponent<typeof List, MenuProps> = React.forwardRef(
       defaultOpenKeys,
       selectedKeys: selectedKeysProps,
       defaultSelectedKeys,
-      collapsed,
+      uniqueOpened,
       selectable,
       multiple,
-      uniqueOpened,
       onOpenChange,
       onSelect,
-      onClick,
       onDeselect,
-      onDestroy,
+      onClick,
       children,
-      activeKey,
-      ...rest
     } = props;
 
     const [openKeys, setOpenKeys] = useControlled(
@@ -100,18 +99,18 @@ const Menu: RefForwardingComponent<typeof List, MenuProps> = React.forwardRef(
     );
 
     const handleOpenChange = React.useCallback(
-      (eventKey: string, event: React.MouseEvent) => {
+      (eventKey: string) => {
         let nextOpenKeys = [...openKeys];
         if (uniqueOpened) {
-          nextOpenKeys = nextOpenKeys.concat([eventKey]);
-        } else {
           nextOpenKeys = [eventKey];
+        } else {
+          nextOpenKeys = nextOpenKeys.concat([eventKey]);
         }
 
         setOpenKeys(nextOpenKeys);
-        onOpenChange?.(nextOpenKeys, event);
+        onOpenChange?.(nextOpenKeys);
       },
-      [onOpenChange, openKeys, setOpenKeys]
+      [onOpenChange, openKeys, setOpenKeys, uniqueOpened]
     );
 
     const handleSelect = React.useCallback(
@@ -124,51 +123,61 @@ const Menu: RefForwardingComponent<typeof List, MenuProps> = React.forwardRef(
             nextSelectedKeys = [eventKey];
           }
           setSelectedKeys(nextSelectedKeys);
-          onSelect?.(nextSelectedKeys, event);
+          onSelect?.(eventKey, event, nextSelectedKeys);
         }
       },
-      [onSelect, selectedKeys, setSelectedKeys]
+      [multiple, onSelect, selectable, selectedKeys, setSelectedKeys]
     );
 
-    const popupMenu = cloneElement(children, (item) => {
-      const { eventKey, active, ...rest } = item.props;
-      const displayName = item?.type?.displayName;
-
-      if (displayName === "MenuItem") {
-        return {
-          ...rest,
-          isSelected: selectedKeys.indexOf(eventKey) !== -1,
-          active:
-            typeof activeKey === "undefined"
-              ? active
-              : equals(activeKey, eventKey),
-        };
-      }
-
-      if (displayName === "SubMenu") {
-          return {
-              ...rest,
-              
+    const handleDeselect = React.useCallback(
+      (eventKey: string, event: React.MouseEvent) => {
+        if (selectable) {
+          let nextSelectedKeys = [...selectedKeys];
+          const index = nextSelectedKeys.indexOf(eventKey);
+          if (index !== -1) {
+            nextSelectedKeys.splice(index, 1);
           }
-      }
+          setSelectedKeys(nextSelectedKeys);
+          onDeselect?.(eventKey, event, nextSelectedKeys);
+        }
+      },
+      [onDeselect, selectable, selectedKeys, setSelectedKeys]
+    );
 
-      return null;
-    });
+    const handleClick = React.useCallback(
+      (eventKey: string, event: React.MouseEvent) => {
+        onClick?.(eventKey, event);
+      },
+      [onClick]
+    );
 
     const contextValue = React.useMemo(
       () => ({
-        collapsed,
         selectedKeys,
         openKeys,
-        onOpenChange: handleOpenChange,
-        onSelect: handleSelect,
       }),
-      [collapsed, handleSelect, selectedKeys, handleOpenChange, openKeys]
+      [selectedKeys, openKeys]
     );
+
+    const mouseEvent = {
+      onClick: handleClick,
+      onOpenChange: handleOpenChange,
+      onSelect: handleSelect,
+      onDeselect: handleDeselect,
+    };
 
     return (
       <MenuContext.Provider value={contextValue}>
-        <Component {...rest}>{popupMenu}</Component>
+        <Component
+          {...omit(
+            ["onClick", "onOpenChange", "onSelect", "onDeselect", "children"],
+            props
+          )}
+          {...mouseEvent}
+          ref={ref}
+        >
+          {children}
+        </Component>
       </MenuContext.Provider>
     );
   }
@@ -178,6 +187,22 @@ Menu.displayName = "Menu";
 Menu.defaultProps = defaultProps;
 Menu.propTypes = {
   component: PropTypes.elementType,
+  collapsed: PropTypes.bool,
+  multiple: PropTypes.bool,
+  indent: PropTypes.number,
+  level: PropTypes.number,
+  selectable: PropTypes.bool,
+  uniqueOpened: PropTypes.bool,
+  defaultActiveFirst: PropTypes.bool,
+  defaultOpenKeys: PropTypes.array,
+  openKeys: PropTypes.array,
+  defaultSelectedKeys: PropTypes.array,
+  selectedKeys: PropTypes.array,
+  activeKey: PropTypes.string,
+  onOpenChange: PropTypes.func,
+  onSelect: PropTypes.func,
+  onDeselect: PropTypes.func,
+  onClick: PropTypes.func,
 };
 
 export default Menu;

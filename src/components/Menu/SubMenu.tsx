@@ -4,37 +4,57 @@ import MenuToggle from "./MenuToggle";
 import PopupMenu from "./PopupMenu";
 import { MenuContext, MenuContextType } from "./Menu";
 import { WithComponentProps, RefForwardingComponent } from "src/@types/common";
-import Collapse from 'src/components/core/Collapse'
+import Collapse from "src/components/core/Collapse";
+import {
+  MenuClickEventHandler,
+  SelectEventHandler,
+  MenuHoverEventHandler,
+  DestroyEventHandler,
+} from "./interface";
+import useControlled from "src/hooks/useControlled";
 
 export type TriggerPopup = "click" | "hover";
 export interface SubMenuProps<T = string>
   extends WithComponentProps,
-    Omit<React.HTMLAttributes<HTMLElement>, "onSelect" | "title"> {
+    Omit<
+      React.HTMLAttributes<HTMLElement>,
+      "title" | "onSelect" | "onClick" | "onMouseEnter" | "onMouseLeave"
+    > {
   /** Define this title as a submenu */
   title?: React.ReactNode;
 
   /** Define this icon */
   icon?: React.ReactElement;
 
-  /** Define the only sign of submenu  */
-  eventKey?: string;
+  /** The value of the current option */
+  eventKey: T;
 
-  /** Triggering events */
-  trigger?: TriggerPopup | TriggerPopup[];
+  /** Define menu indent width */
+  indent?: number;
+
+  /** Define the layer number of menu */
+  level?: number;
 
   /** Whether or not component is disabled */
   disabled?: boolean;
 
   /** Open the menu and control it */
-  open?: boolean;
+  isOpen?: boolean;
+
+  /** Whether it's activated or not */
+  active?: boolean;
+
+  onOpenChange?: (openKeys: T[]) => void;
+  onClick?: MenuClickEventHandler<T>;
+  onSelect?: SelectEventHandler<T>;
+  onDeselect?: SelectEventHandler<T>;
+  onMouseEnter?: MenuHoverEventHandler<T>;
+  onMouseLeave?: MenuHoverEventHandler<T>;
 }
 
 const defaultProps: Partial<SubMenuProps> = {
   component: "li",
   prefixClass: "sub-menu",
-  trigger: "click",
-  className: "",
-  style: {},
 };
 
 const SubMenu: RefForwardingComponent<"li", SubMenuProps> = React.forwardRef(
@@ -47,37 +67,44 @@ const SubMenu: RefForwardingComponent<"li", SubMenuProps> = React.forwardRef(
       eventKey,
       children,
       disabled,
+      isOpen: openProp,
+      onClick,
+      onSelect,
+      onDeselect,
+      onOpenChange,
       ...rest
     } = props;
 
-    const { onOpenChange, openKeys, collapsed } = React.useContext<
-      MenuContextType
-    >(MenuContext);
+    const [open, setOpen] = useControlled(openProp, false);
+    const { openKeys } = React.useContext<MenuContextType>(MenuContext);
 
-    const overlayTarget = React.useRef();
-    const triggerTarget = React.useRef();
-
-    const handleOpenChange = React.useCallback(
-      (event: React.MouseEvent) => {
-        onOpenChange?.(eventKey, event);
-      },
-      [eventKey, onOpenChange]
+    const handleClick = React.useCallback(
+      (event: React.MouseEvent<HTMLElement>) => {},
+      []
+    );
+    const handleMouseLeave = React.useCallback(
+      (event: React.MouseEvent<HTMLElement>) => {},
+      []
+    );
+    const handleMouseEnter = React.useCallback(
+      (event: React.MouseEvent<HTMLElement>) => {},
+      []
     );
 
-    const handleMouseEnter = React.useCallback(()=>{
+    const MenuElement = (
+      <Collapse in={open} timeout="auto" unmountOnExit>
+        {children}
+      </Collapse>
+    );
 
-    }, [disabled])
-
-    const handleMouseLeave = React.useCallback(()=>{
-
-    }, [disabled])
-
-   
-
-    const MenuElement = <Collapse ref={overlayTarget}></Collapse>;
+    const mouseEvent = {
+      onClick: handleClick,
+      onMouseLeave: handleMouseLeave,
+      onMouseEnter: handleMouseEnter,
+    };
 
     const toggleElement = (
-      <MenuToggle ref={triggerTarget} button role="button">
+      <MenuToggle role="button" {...mouseEvent}>
         {title}
       </MenuToggle>
     );

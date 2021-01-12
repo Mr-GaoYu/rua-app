@@ -15,7 +15,7 @@ export type MenuHoverEventHandler<T> = (
 export type SelectEventHandler<T> = (
   eventKey: T,
   event: React.SyntheticEvent,
-  selectedKeys: T[],
+  selectedKeys?: T[],
 ) => void
 
 export interface StandardProps {
