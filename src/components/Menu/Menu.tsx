@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { WithComponentProps, RefForwardingComponent } from "src/@types/common";
 import useControlled from "src/hooks/useControlled";
-import { omit } from "ramda";
+import { omit, equals } from "ramda";
 import { SelectEventHandler, MenuClickEventHandler } from "./interface";
 import PopupMenu from "./PopupMenu";
 
@@ -97,7 +97,8 @@ const Menu: RefForwardingComponent<
   );
 
   const handleOpenChange = React.useCallback(
-    (eventKey: string) => {
+    (eventKey: string, event: React.MouseEvent) => {
+      const find = (key) => equals(eventKey, key);
       let nextOpenKeys = [...openKeys];
       if (uniqueOpened) {
         nextOpenKeys = [eventKey];
