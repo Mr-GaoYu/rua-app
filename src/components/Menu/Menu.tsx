@@ -100,6 +100,12 @@ const Menu: RefForwardingComponent<
     (eventKey: string, event: React.MouseEvent) => {
       const find = (key) => equals(eventKey, key);
       let nextOpenKeys = [...openKeys];
+      if (nextOpenKeys.some(find)) {
+        remove(nextOpenKeys, find);
+      } else {
+        nextOpenKeys.push(eventKey);
+      }
+
       if (uniqueOpened) {
         nextOpenKeys = [eventKey];
       } else {
