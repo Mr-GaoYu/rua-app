@@ -2,7 +2,7 @@ import React from 'react';
 import { Omit } from './utils';
 
 export interface StandardProps {
-    prefixClass?: string;
+    prefixclass?: string;
 
     className?: string;
 

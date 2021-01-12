@@ -9,7 +9,7 @@ export interface MenuToggleProps extends WithComponentProps {
 
 const defaultProps: Partial<MenuToggleProps> = {
   component: ListItem,
-  prefixClass: "menu-toggle",
+  prefixclass: "menu-toggle",
   button: false
 };
 

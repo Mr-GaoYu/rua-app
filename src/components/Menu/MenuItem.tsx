@@ -81,7 +81,7 @@ export interface MenuItemProps<T = string>
 
 const defaultProps: Partial<MenuItemProps> = {
   component: ListItem,
-  prefixClass: "menu-item",
+  prefixclass: "menu-item",
   button: false,
   level: 1,
   indent: 16,
@@ -93,7 +93,7 @@ const MenuItem: RefForwardingComponent<
 > = React.forwardRef((props: MenuItemProps, ref: React.Ref<HTMLLIElement>) => {
   const {
     component: Component,
-    prefixClass,
+    prefixclass,
     onClick,
     onSelect,
     onDeselect,

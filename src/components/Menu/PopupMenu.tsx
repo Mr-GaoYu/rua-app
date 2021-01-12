@@ -43,7 +43,7 @@ export interface PopupMenuProps<T = string> extends WithComponentProps {
   activeKey?: T;
 
   /** called when open/close submenu */
-  onOpenChange?: (openKeys: T[], event: React.SyntheticEvent) => void;
+  onOpenChange?: (eventKey: string) => void;
 
   /** called when select a menuitem */
   onSelect?: SelectEventHandler<T>;
@@ -57,7 +57,7 @@ export interface PopupMenuProps<T = string> extends WithComponentProps {
 
 const defaultProps: Partial<PopupMenuProps> = {
   component: List,
-  prefixClass: "popup-menu",
+  prefixclass: "popup-menu",
   level: 1,
   indent: 16,
 };
@@ -66,9 +66,15 @@ const PopupMenu: RefForwardingComponent<
   typeof List,
   PopupMenuProps
 > = React.forwardRef((props: PopupMenuProps, ref: React.Ref<HTMLLIElement>) => {
-  const { component: Component, children } = props;
+  const { component: Component, children, onOpenChange } = props;
 
-  return <Component>{children}</Component>;
+  const items = React.Children.map(children, (child: any) => {
+    return React.cloneElement(child, {
+      onOpenChange,
+    });
+  });
+
+  return <Component>{items}</Component>;
 });
 
 PopupMenu.displayName = "PopupMenu";

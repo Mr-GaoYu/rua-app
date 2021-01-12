@@ -44,7 +44,7 @@ export interface SubMenuProps<T = string>
   /** Whether it's activated or not */
   active?: boolean;
 
-  onOpenChange?: (openKeys: T[]) => void;
+  onOpenChange?: (eventKey: string) => void;
   onClick?: MenuClickEventHandler<T>;
   onSelect?: SelectEventHandler<T>;
   onDeselect?: SelectEventHandler<T>;
@@ -54,33 +54,32 @@ export interface SubMenuProps<T = string>
 
 const defaultProps: Partial<SubMenuProps> = {
   component: "li",
-  prefixClass: "sub-menu",
+  prefixclass: "sub-menu",
 };
 
 const SubMenu: RefForwardingComponent<"li", SubMenuProps> = React.forwardRef(
   (props: SubMenuProps, ref: React.Ref<HTMLLIElement>) => {
     const {
       component: Component,
-      style,
-      className,
-      title,
-      eventKey,
       children,
+      title,
       disabled,
-      isOpen: openProp,
       onClick,
-      onSelect,
-      onDeselect,
       onOpenChange,
-      ...rest
+      eventKey,
     } = props;
 
-    const [open, setOpen] = useControlled(openProp, false);
     const { openKeys } = React.useContext<MenuContextType>(MenuContext);
 
     const handleClick = React.useCallback(
-      (event: React.MouseEvent<HTMLElement>) => {},
-      []
+      (event: React.MouseEvent<HTMLElement>) => {
+        if (disabled) {
+          return;
+        }
+        onClick?.(eventKey, event);
+        onOpenChange?.(eventKey);
+      },
+      [disabled, eventKey, onClick, onOpenChange]
     );
     const handleMouseLeave = React.useCallback(
       (event: React.MouseEvent<HTMLElement>) => {},
@@ -90,6 +89,8 @@ const SubMenu: RefForwardingComponent<"li", SubMenuProps> = React.forwardRef(
       (event: React.MouseEvent<HTMLElement>) => {},
       []
     );
+
+    const open = openKeys.indexOf(eventKey) !== -1;
 
     const MenuElement = (
       <Collapse in={open} timeout="auto" unmountOnExit>
@@ -110,7 +111,7 @@ const SubMenu: RefForwardingComponent<"li", SubMenuProps> = React.forwardRef(
     );
 
     return (
-      <Component ref={ref} style={style}>
+      <Component ref={ref}>
         {toggleElement}
         {MenuElement}
       </Component>

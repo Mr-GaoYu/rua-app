@@ -4,7 +4,7 @@ import { WithComponentProps, RefForwardingComponent } from "src/@types/common";
 import useControlled from "src/hooks/useControlled";
 import { omit } from "ramda";
 import { SelectEventHandler, MenuClickEventHandler } from "./interface";
-import PopupMenu from './PopupMenu'
+import PopupMenu from "./PopupMenu";
 
 export interface MenuProps<T = string> extends WithComponentProps {
   /** Whether the menu is in the folded state */
@@ -65,123 +65,117 @@ export const MenuContext = React.createContext(null);
 
 const defaultProps: Partial<MenuProps> = {
   component: PopupMenu,
-  prefixClass: "menu",
+  prefixclass: "menu",
   selectable: true,
   defaultOpenKeys: [],
   defaultSelectedKeys: [],
 };
 
-const Menu: RefForwardingComponent<typeof PopupMenu, MenuProps> = React.forwardRef(
-  (props: MenuProps, ref: React.Ref<HTMLLIElement>) => {
-    const {
-      component: Component,
-      openKeys: openKeysProp,
-      defaultOpenKeys,
-      selectedKeys: selectedKeysProps,
-      defaultSelectedKeys,
-      uniqueOpened,
-      selectable,
-      multiple,
-      onOpenChange,
-      onSelect,
-      onDeselect,
-      onClick,
-      children,
-    } = props;
+const Menu: RefForwardingComponent<
+  typeof PopupMenu,
+  MenuProps
+> = React.forwardRef((props: MenuProps, ref: React.Ref<HTMLLIElement>) => {
+  const {
+    component: Component,
+    openKeys: openKeysProp,
+    defaultOpenKeys,
+    selectedKeys: selectedKeysProps,
+    defaultSelectedKeys,
+    uniqueOpened,
+    selectable,
+    multiple,
+    onOpenChange,
+    onSelect,
+    onDeselect,
+    onClick,
+  } = props;
 
-    const [openKeys, setOpenKeys] = useControlled(
-      openKeysProp,
-      defaultOpenKeys
-    );
-    const [selectedKeys, setSelectedKeys] = useControlled(
-      selectedKeysProps,
-      defaultSelectedKeys
-    );
+  const [openKeys, setOpenKeys] = useControlled(openKeysProp, defaultOpenKeys);
+  const [selectedKeys, setSelectedKeys] = useControlled(
+    selectedKeysProps,
+    defaultSelectedKeys
+  );
 
-    const handleOpenChange = React.useCallback(
-      (eventKey: string) => {
-        let nextOpenKeys = [...openKeys];
-        if (uniqueOpened) {
-          nextOpenKeys = [eventKey];
+  const handleOpenChange = React.useCallback(
+    (eventKey: string) => {
+      let nextOpenKeys = [...openKeys];
+      if (uniqueOpened) {
+        nextOpenKeys = [eventKey];
+      } else {
+        nextOpenKeys = nextOpenKeys.concat([eventKey]);
+      }
+
+      setOpenKeys(nextOpenKeys);
+      onOpenChange?.(nextOpenKeys);
+    },
+    [onOpenChange, openKeys, setOpenKeys, uniqueOpened]
+  );
+
+  const handleSelect = React.useCallback(
+    (eventKey: string, event: React.MouseEvent) => {
+      if (selectable) {
+        let nextSelectedKeys = [...selectedKeys];
+        if (multiple) {
+          nextSelectedKeys = nextSelectedKeys.concat([eventKey]);
         } else {
-          nextOpenKeys = nextOpenKeys.concat([eventKey]);
+          nextSelectedKeys = [eventKey];
         }
+        setSelectedKeys(nextSelectedKeys);
+        onSelect?.(eventKey, event, nextSelectedKeys);
+      }
+    },
+    [multiple, onSelect, selectable, selectedKeys, setSelectedKeys]
+  );
 
-        setOpenKeys(nextOpenKeys);
-        onOpenChange?.(nextOpenKeys);
-      },
-      [onOpenChange, openKeys, setOpenKeys, uniqueOpened]
-    );
-
-    const handleSelect = React.useCallback(
-      (eventKey: string, event: React.MouseEvent) => {
-        if (selectable) {
-          let nextSelectedKeys = [...selectedKeys];
-          if (multiple) {
-            nextSelectedKeys = nextSelectedKeys.concat([eventKey]);
-          } else {
-            nextSelectedKeys = [eventKey];
-          }
-          setSelectedKeys(nextSelectedKeys);
-          onSelect?.(eventKey, event, nextSelectedKeys);
+  const handleDeselect = React.useCallback(
+    (eventKey: string, event: React.MouseEvent) => {
+      if (selectable) {
+        let nextSelectedKeys = [...selectedKeys];
+        const index = nextSelectedKeys.indexOf(eventKey);
+        if (index !== -1) {
+          nextSelectedKeys.splice(index, 1);
         }
-      },
-      [multiple, onSelect, selectable, selectedKeys, setSelectedKeys]
-    );
+        setSelectedKeys(nextSelectedKeys);
+        onDeselect?.(eventKey, event, nextSelectedKeys);
+      }
+    },
+    [onDeselect, selectable, selectedKeys, setSelectedKeys]
+  );
 
-    const handleDeselect = React.useCallback(
-      (eventKey: string, event: React.MouseEvent) => {
-        if (selectable) {
-          let nextSelectedKeys = [...selectedKeys];
-          const index = nextSelectedKeys.indexOf(eventKey);
-          if (index !== -1) {
-            nextSelectedKeys.splice(index, 1);
-          }
-          setSelectedKeys(nextSelectedKeys);
-          onDeselect?.(eventKey, event, nextSelectedKeys);
-        }
-      },
-      [onDeselect, selectable, selectedKeys, setSelectedKeys]
-    );
+  const handleClick = React.useCallback(
+    (eventKey: string, event: React.MouseEvent) => {
+      onClick?.(eventKey, event);
+    },
+    [onClick]
+  );
 
-    const handleClick = React.useCallback(
-      (eventKey: string, event: React.MouseEvent) => {
-        onClick?.(eventKey, event);
-      },
-      [onClick]
-    );
+  const contextValue = React.useMemo(
+    () => ({
+      selectedKeys,
+      openKeys,
+    }),
+    [selectedKeys, openKeys]
+  );
 
-    const contextValue = React.useMemo(
-      () => ({
-        selectedKeys,
-        openKeys,
-      }),
-      [selectedKeys, openKeys]
-    );
+  const mouseEvent = {
+    onClick: handleClick,
+    onOpenChange: handleOpenChange,
+    onSelect: handleSelect,
+    onDeselect: handleDeselect,
+  };
 
-    const mouseEvent = {
-      onClick: handleClick,
-      onOpenChange: handleOpenChange,
-      onSelect: handleSelect,
-      onDeselect: handleDeselect,
-    };
-
-    return (
-      <MenuContext.Provider value={contextValue}>
-        <Component
-          {...omit(
-            ["onClick", "onOpenChange", "onSelect", "onDeselect", "children"],
-            props
-          )}
-          {...mouseEvent}
-          ref={ref}
-        >
-          {children}
-        </Component>
-      </MenuContext.Provider>
-    );
-  }
-);
+  return (
+    <MenuContext.Provider value={contextValue}>
+      <Component
+        {...omit(
+          ["onClick", "onOpenChange", "onSelect", "onDeselect", "component"],
+          props
+        )}
+        {...mouseEvent}
+      />
+    </MenuContext.Provider>
+  );
+});
 
 Menu.displayName = "Menu";
 Menu.defaultProps = defaultProps;
