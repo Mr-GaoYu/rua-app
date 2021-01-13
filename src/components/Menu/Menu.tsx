@@ -71,7 +71,15 @@ const Menu: React.FC<MenuProps> = (props) => {
     }),
     [expanded, onOpenChange, openKeys]
   );
-
+  const [c,setC] =React.useState(null)
+  const items = React.Children.map(children, (child: any) => {
+    return React.cloneElement(child, {
+      onClick: (event) => {
+        setC(child)
+      },
+    });
+  });
+  console.log(c)
   return (
     <MenuContext.Provider value={contextValue}>
       <List
@@ -82,7 +90,8 @@ const Menu: React.FC<MenuProps> = (props) => {
         })}
         style={style}
       >
-        {children}
+        {items}
+        {c}
       </List>
     </MenuContext.Provider>
   );

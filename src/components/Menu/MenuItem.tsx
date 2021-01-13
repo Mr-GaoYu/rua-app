@@ -90,22 +90,7 @@ const MenuItem: React.FC<MenuItemProps> = (props) => {
     (event: React.MouseEvent<HTMLLIElement, MouseEvent>) => {},
     []
   );
-  const item = (
-    <ListItem
-      disableGutters
-      disabled={disabled}
-      divider={divider}
-      button={false}
-      className={classNames({
-        [classes.menuItem]: true,
-        [classes.collapsed]: !expanded,
-        [classes.active]: active,
-      })}
-    >
-      {icon}
-      {expanded && children}
-    </ListItem>
-  );
+
   return (
     <ListItem
       disableGutters
@@ -117,6 +102,7 @@ const MenuItem: React.FC<MenuItemProps> = (props) => {
         [classes.collapsed]: !expanded,
         [classes.active]: active,
       })}
+      onClick={handleClick}
     >
       {icon}
       {expanded && children}
