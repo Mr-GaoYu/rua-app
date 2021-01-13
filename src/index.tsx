@@ -10,25 +10,13 @@ import {
   RouteComponentProps,
   Switch,
 } from "react-router-dom";
-import ThemeWrapper from "./ThemeWrapper";
-import SnackBar from "src/components/SnackBar";
 import "./index.css";
 
 const renderNull = () => <span>null route</span>;
 
 const renderApp = (props: RouteComponentProps) => (
   <React.Fragment>
-    <ThemeWrapper>
-      {(toggle, spacing) => (
-        <SnackBar
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-          maxSnack={3}
-          autoHideDuration={4000}
-          hideIconVariant={true}>
-          <App />
-        </SnackBar>
-      )}
-    </ThemeWrapper>
+   
   </React.Fragment>
 );
 
