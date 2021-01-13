@@ -1,101 +1,26 @@
 import React from "react";
 import { Key } from "./interface";
 import List from "src/components/core/List";
-import { makeStyles, Theme, createStyles } from "src/components/core/styles";
-import classNames from "classnames";
-import Popover from "src/components/core/Popover";
+import { RefForwardingComponent, WithComponentProps } from "src/@types/common";
+import PopupMenu from "./PopupMenu";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    menu: {
-      width: 250,
-      zIndex: 10,
-      backgroundColor: "#ffffff",
-      position: "relative",
-      transition: theme.transitions.create("all"),
-      boxShadow: "0 0 35px 0 rgba(154,161,171,.15)",
-    },
-    collapsed: {
-      width: 70,
-    },
-  })
-);
-
-export interface MenuProps<T = Key> {
-  expanded?: boolean;
-
-  defaultOpenKeys?: T[];
-
-  openKeys?: T[];
-
-  activeKey?: T;
-
-  onOpenChange?: (openKeys: T[], event: React.SyntheticEvent) => void;
-
-  onSelect?: (eventKey: T, event: React.SyntheticEvent) => void;
-
-  style?: React.CSSProperties;
-
-  className?: string;
-}
-
-export interface MenuContextType<T = Key> {
-  openKeys: T[];
-  expanded: boolean;
-  onOpenChange: (openKeys: T[], event: React.SyntheticEvent) => void;
-}
-
-export const MenuContext = React.createContext<MenuContextType>(null);
+export interface MenuProps<T = Key> extends WithComponentProps {}
 
 const defaultProps: Partial<MenuProps> = {
-  expanded: true,
-  defaultOpenKeys: [],
+  component: List,
 };
 
-const Menu: React.FC<MenuProps> = (props) => {
-  const {
-    expanded,
-    style,
-    onOpenChange,
-    className,
-    openKeys,
-    children,
-  } = props;
-  const classes = useStyles();
+const Menu: RefForwardingComponent<typeof List, MenuProps> = React.forwardRef(
+  (props: MenuProps, ref: React.Ref<HTMLElement>) => {
+    const { component: Component ,...rest } = props;
 
-  const contextValue = React.useMemo(
-    () => ({
-      openKeys,
-      expanded,
-      onOpenChange,
-    }),
-    [expanded, onOpenChange, openKeys]
-  );
-  const [c,setC] =React.useState(null)
-  const items = React.Children.map(children, (child: any) => {
-    return React.cloneElement(child, {
-      onClick: (event) => {
-        setC(child)
-      },
-    });
-  });
-  console.log(c)
-  return (
-    <MenuContext.Provider value={contextValue}>
-      <List
-        disablePadding
-        className={classNames(className, {
-          [classes.menu]: true,
-          [classes.collapsed]: !expanded,
-        })}
-        style={style}
-      >
-        {items}
-        {c}
-      </List>
-    </MenuContext.Provider>
-  );
-};
+    return (
+      <Component ref={ref}>
+        <PopupMenu {...rest}/>
+      </Component>
+    );
+  }
+);
 
 Menu.displayName = "Menu";
 Menu.defaultProps = defaultProps;
