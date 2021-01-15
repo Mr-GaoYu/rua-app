@@ -2,6 +2,7 @@ import React from "react";
 import { Story, Meta } from "@storybook/react/types-6-0";
 import Menu from "./Menu";
 import MenuItem from "./MenuItem";
+import SubMenu from "./SubMenu";
 import AcUnitIcon from "@material-ui/icons/AcUnit";
 
 export default {
@@ -11,11 +12,16 @@ export default {
 export const NavBar = (args) => {
   return (
     <Menu {...args}>
-      <MenuItem icon={<AcUnitIcon />}>Dashboard</MenuItem>
+      <MenuItem {...args}>Dashboard</MenuItem>
+      <SubMenu >
+        <MenuItem {...args}>Dashboard</MenuItem>
+        <MenuItem {...args}>Dashboard</MenuItem>
+      </SubMenu>
     </Menu>
   );
 };
 
 NavBar.args = {
-  expanded: true,
+  collapse: false,
+  icon: <AcUnitIcon />
 };
