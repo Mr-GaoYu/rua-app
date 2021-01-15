@@ -13,7 +13,7 @@ export const NavBar = (args) => {
   return (
     <Menu {...args}>
       <MenuItem {...args}>Dashboard</MenuItem>
-      <SubMenu >
+      <SubMenu {...args} title="Dashboard">
         <MenuItem {...args}>Dashboard</MenuItem>
         <MenuItem {...args}>Dashboard</MenuItem>
       </SubMenu>

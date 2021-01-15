@@ -3,16 +3,12 @@ import classNames from "classnames";
 import { WithComponentProps, RefForwardingComponent } from "src/@types/common";
 import { makeStyles, createStyles, Theme } from "src/components/core/styles";
 import SafeAnchor from "src/components/SafeAnchor";
+import { cloneElement, isValidElement } from "src/utilities/reactNode";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     menuItem: {
       listStyle: "none",
-      "& .prefix": {
-        width: 20,
-        height: 20,
-        margin: "0 10px 0 3px",
-      },
     },
     navLink: {
       color: "#6c757d",
@@ -20,8 +16,15 @@ const useStyles = makeStyles((theme: Theme) =>
       position: "relative",
       transition: "all .4s",
       display: "block",
-      outline: 0,
       textDecoration: "none",
+      boxSizing: 'border-box',
+      "& .prefix-icon": {
+        width: 20,
+        height: 20,
+        margin: "0 10px 0 3px",
+        textAlign: "center",
+        verticalAlign: "middle",
+      },
       "& span": {
         verticalAlign: "middle",
       },
@@ -33,8 +36,12 @@ const useStyles = makeStyles((theme: Theme) =>
       "& $navLink": {
         padding: "15px 20px",
         minHeight: 56,
+        "& .prefix-icon": {
+          marginRight: 20,
+        },
         "& span": {
           display: "none",
+          paddingLeft: 10,
         },
         "&:hover": {
           position: "relative",
@@ -52,7 +59,7 @@ const useStyles = makeStyles((theme: Theme) =>
 export interface MenuItemProps
   extends WithComponentProps,
     Omit<React.HtmlHTMLAttributes<HTMLElement>, "onSelect"> {
-  icon?: React.ReactElement;
+  icon?: React.ReactNode;
 
   collapse?: boolean;
 
@@ -61,6 +68,8 @@ export interface MenuItemProps
   divider?: boolean;
 
   eventKey?: string;
+
+  level?: number;
 
   onSelect?: (eventKey: string, event: React.SyntheticEvent) => void;
 }
@@ -80,7 +89,8 @@ const MenuItem: RefForwardingComponent<"li", MenuItemProps> = React.forwardRef(
       onSelect,
       onClick,
       eventKey,
-      icon: iconElement,
+      level,
+      icon,
     } = props;
     const classes = useStyles();
 
@@ -99,16 +109,19 @@ const MenuItem: RefForwardingComponent<"li", MenuItemProps> = React.forwardRef(
     };
 
     const renderItemChildren = () => {
-      if (!iconElement || (React.isValidElement(children) && children.type === 'span')) {
-          if(children &&  typeof children === 'string'){
-              
-          }
-          return children
+      if (isValidElement(children) && children.type === "span") {
+        if (
+          children &&
+          collapse &&
+          level === 1 &&
+          typeof children === "string"
+        ) {
+          return <span>{(children as string).charAt(0)}</span>;
+        }
+        return children;
       }
 
-      return React.cloneElement(iconElement, {
-        className: "prefix",
-      });
+      return <span>{children}</span>;
     };
 
     return (
@@ -125,6 +138,12 @@ const MenuItem: RefForwardingComponent<"li", MenuItemProps> = React.forwardRef(
           })}
           {...mouseEvent}
         >
+          {cloneElement(icon, {
+            className: classNames(
+              isValidElement(icon) ? icon.props?.className : "",
+              "prefix-icon"
+            ),
+          })}
           {renderItemChildren()}
         </SafeAnchor>
       </Component>
