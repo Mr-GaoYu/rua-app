@@ -1,7 +1,7 @@
 import React from "react";
-import classNames from "classnames";
-import { WithComponentProps, RefForwardingComponent } from "src/@types/common";
+
 import { makeStyles, createStyles, Theme } from "src/components/core/styles";
+import MenuBody from "./MenuBody";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -25,33 +25,58 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export interface MenuProps
-  extends WithComponentProps,
-    React.HtmlHTMLAttributes<HTMLElement> {
+  extends Omit<React.HTMLAttributes<HTMLElement>, "onClick" | "onSelect"> {
   collapse?: boolean;
+
+  defaultSelectedKeys?: string[];
+
+  selectedKeys?: string[];
+
+  defaultOpenKeys?: string[];
+
+  openKeys?: string[];
+
+  defaultActiveFirst?: boolean;
+
+  activeKey?: string;
+
+  uniqueOpened?: boolean;
+
+  collapsedWidth?: string | number;
+
+  selectable?: boolean;
+
+  multiple?: boolean;
+
+  level?: number;
 }
 
-const defaultProps: Partial<MenuProps> = {
-  component: "ul",
+export const MenuContext = React.createContext(null);
+
+export interface MenuContextType {
+  openKeys?: string[];
+  selectedKeys?: string[];
+}
+
+const defaultProps: Partial<MenuProps> = {};
+
+const Menu: React.FC<MenuProps> = (props: MenuProps) => {
+  const { collapse, children, selectedKeys, openKeys, activeKey } = props;
+  const classes = useStyles();
+
+  const contextValue = {
+    selectedKeys,
+    openKeys,
+    activeKey,
+    collapse,
+  };
+
+  return (
+    <MenuContext.Provider value={contextValue}>
+      <MenuBody {...props}>{children}</MenuBody>
+    </MenuContext.Provider>
+  );
 };
-
-const Menu: RefForwardingComponent<"ul", MenuProps> = React.forwardRef(
-  (props: MenuProps, ref: React.Ref<HTMLElement>) => {
-    const { component: Component, collapse, className,children } = props;
-    const classes = useStyles();
-
-    return (
-      <Component
-        ref={ref}
-        className={classNames(className, {
-          [classes.menu]: true,
-          [classes.collapse]: collapse,
-        })}
-      >
-        {children}
-      </Component>
-    );
-  }
-);
 
 Menu.defaultProps = defaultProps;
 Menu.displayName = "Menu";

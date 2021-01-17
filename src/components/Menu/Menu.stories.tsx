@@ -12,10 +12,10 @@ export default {
 export const NavBar = (args) => {
   return (
     <Menu {...args}>
-      <MenuItem {...args}>Dashboard</MenuItem>
-      <SubMenu {...args} title="Dashboard">
-        <MenuItem {...args}>Dashboard</MenuItem>
-        <MenuItem {...args}>Dashboard</MenuItem>
+      <MenuItem {...args} eventKey="a">Dashboard</MenuItem>
+      <SubMenu {...args} eventKey="b" title="Dashboard">
+        <MenuItem {...args} eventKey="c">Dashboard</MenuItem>
+        <MenuItem {...args} eventKey="d">Dashboard</MenuItem>
       </SubMenu>
     </Menu>
   );

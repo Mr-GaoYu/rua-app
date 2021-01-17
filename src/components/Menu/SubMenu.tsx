@@ -5,6 +5,9 @@ import { makeStyles, createStyles, Theme } from "src/components/core/styles";
 import SafeAnchor from "src/components/SafeAnchor";
 import Collapse from "src/components/core/Collapse";
 import { cloneElement, isValidElement } from "src/utilities/reactNode";
+import { loopMenuItemRecursively } from "./util";
+import { OpenEventHandler, MenuHoverEventHandler } from "./interface";
+import useControlled from "src/hooks/useControlled";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -74,21 +77,31 @@ const useStyles = makeStyles((theme: Theme) =>
 export interface SubMenuProps
   extends WithComponentProps,
     Omit<React.HtmlHTMLAttributes<HTMLElement>, "onSelect" | "title"> {
-  icon?: React.ReactNode;
+  title?: React.ReactNode;
 
-  collapse?: boolean;
+  icon?: React.ReactElement;
+
+  activeKey?: string;
 
   disabled?: boolean;
 
-  divider?: boolean;
-
   eventKey?: string;
+
+  open?: boolean;
+
+  divider?: boolean;
 
   level?: number;
 
-  title?: React.ReactNode;
+  onClose?: () => void;
 
-  onSelect?: (eventKey: string, event: React.SyntheticEvent) => void;
+  onOpen?: () => void;
+
+  onToggle?: (open?: boolean) => void;
+
+  onSelect?: (eventKey: string, event: React.MouseEvent<HTMLElement>) => void;
+
+  onOpenChange?: (eventKey: string, event: React.SyntheticEvent) => void;
 }
 
 const defaultProps: Partial<SubMenuProps> = {
@@ -99,32 +112,25 @@ const SubMenu: RefForwardingComponent<"li", SubMenuProps> = React.forwardRef(
   (props: SubMenuProps, ref: React.Ref<HTMLElement>) => {
     const {
       component: Component,
-      collapse,
-      disabled,
-      className,
-      children,
-      onSelect,
-      onClick,
-      eventKey,
-      level = 1,
+      open: openProp,
       title,
       icon,
+      onOpen,
+      onClose,
+      onToggle,
+      onOpenChange,
+      eventKey,
+      disabled,
+      onSelect,
     } = props;
     const classes = useStyles();
 
-    const handleClick: React.MouseEventHandler<HTMLElement> = React.useCallback(
-      (event) => {
-        if (!disabled) {
-          onSelect?.(eventKey, event);
-          onClick?.(event);
+    const handleClick = React.useCallback((event: React.MouseEvent) => {
+        if(disabled){
+            return 
         }
-      },
-      [disabled, eventKey, onClick, onSelect]
-    );
-
-    const mouseEvent = {
-      onClick: handleClick,
-    };
+        
+    }, []);
 
     const renderTitle = () => {
       if (!icon) {
