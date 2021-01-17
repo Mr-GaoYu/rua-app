@@ -1,5 +1,5 @@
 import React from "react";
-
+import useControlled from "src/hooks/useControlled";
 import { makeStyles, createStyles, Theme } from "src/components/core/styles";
 import MenuBody from "./MenuBody";
 
@@ -49,6 +49,20 @@ export interface MenuProps
   multiple?: boolean;
 
   level?: number;
+
+  onSelect?: (
+    event: React.MouseEvent,
+    eventKey: string,
+    selectKeys: string[]
+  ) => void;
+
+  onClick?: (eventKey: string) => void;
+
+  onDeselect?: (
+    event: React.MouseEvent,
+    eventKey: string,
+    selectKeys: string[]
+  ) => void;
 }
 
 export const MenuContext = React.createContext(null);
@@ -61,8 +75,74 @@ export interface MenuContextType {
 const defaultProps: Partial<MenuProps> = {};
 
 const Menu: React.FC<MenuProps> = (props: MenuProps) => {
-  const { collapse, children, selectedKeys, openKeys, activeKey } = props;
+  const {
+    selectedKeys: selectedKeysProp,
+    defaultSelectedKeys,
+    openKeys: openKeysProp,
+    defaultOpenKeys,
+    collapse,
+    selectable,
+    multiple,
+    onSelect,
+    onDeselect,
+    onClick,
+    children,
+    activeKey,
+  } = props;
   const classes = useStyles();
+
+  const [selectedKeys, setSelectedKeys] = useControlled(
+    selectedKeysProp,
+    defaultSelectedKeys
+  );
+  const [openKeys, setOpenKeys] = useControlled(openKeysProp, defaultOpenKeys);
+
+  const handleSelect = React.useCallback(
+    (eventKey: string, event: React.MouseEvent) => {
+      if (selectable) {
+        let nextSelectKeys = [...selectedKeys];
+        if (multiple) {
+          nextSelectKeys.push(eventKey);
+        } else {
+          nextSelectKeys = [eventKey];
+        }
+
+        setSelectedKeys(nextSelectKeys);
+        onSelect?.(event, eventKey, nextSelectKeys);
+      }
+    },
+    [multiple, onSelect, selectable, selectedKeys, setSelectedKeys]
+  );
+
+  const handleDeselect = React.useCallback(
+    (eventKey: string, event: React.MouseEvent) => {
+      if (selectable) {
+        let nextSelectKeys = [...selectedKeys];
+        const index = nextSelectKeys.indexOf(eventKey);
+
+        if (index !== -1) {
+          selectedKeys.splice(index, 1);
+        }
+
+        setSelectedKeys(nextSelectKeys);
+        onDeselect?.(event, eventKey, nextSelectKeys);
+      }
+    },
+    [onDeselect, selectable, selectedKeys, setSelectedKeys]
+  );
+
+  const handleClick = React.useCallback(
+    (eventKey: string) => {
+      onClick?.(eventKey);
+    },
+    [onClick]
+  );
+
+  const handleOpenChange = React.useCallback(() => {}, []);
+
+  const handleMouseEnter = React.useCallback(() => {}, []);
+
+  const handleMouseLeave = React.useCallback(() => {}, []);
 
   const contextValue = {
     selectedKeys,
