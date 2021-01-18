@@ -1,28 +1,7 @@
 import React from "react";
 import useControlled from "src/hooks/useControlled";
-import { makeStyles, createStyles, Theme } from "src/components/core/styles";
 import MenuBody from "./MenuBody";
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    menu: {
-      minWidth: 250,
-      maxWidth: 250,
-      zIndex: 10,
-      position: "relative",
-      backgroundColor: "#ffffff",
-      boxShadow: "0 0 35px 0 rgba(154,161,171,.15)",
-      border: "1px solid red",
-      padding: 0,
-      margin: 0,
-    },
-    collapse: {
-      minWidth: 70,
-      maxWidth: 70,
-      zIndex: 5,
-    },
-  })
-);
+import { equals } from "ramda";
 
 export interface MenuProps
   extends Omit<React.HTMLAttributes<HTMLElement>, "onClick" | "onSelect"> {
@@ -63,6 +42,8 @@ export interface MenuProps
     eventKey: string,
     selectKeys: string[]
   ) => void;
+
+  onOpenChange?: (openKeys: string[], event: React.SyntheticEvent) => void;
 }
 
 export const MenuContext = React.createContext(null);
@@ -72,7 +53,12 @@ export interface MenuContextType {
   selectedKeys?: string[];
 }
 
-const defaultProps: Partial<MenuProps> = {};
+const defaultProps: Partial<MenuProps> = {
+  defaultSelectedKeys: [],
+  defaultOpenKeys: [],
+  selectable: true,
+  collapse: true,
+};
 
 const Menu: React.FC<MenuProps> = (props: MenuProps) => {
   const {
@@ -86,10 +72,11 @@ const Menu: React.FC<MenuProps> = (props: MenuProps) => {
     onSelect,
     onDeselect,
     onClick,
+    onOpenChange,
+    uniqueOpened,
     children,
     activeKey,
   } = props;
-  const classes = useStyles();
 
   const [selectedKeys, setSelectedKeys] = useControlled(
     selectedKeysProp,
@@ -100,15 +87,14 @@ const Menu: React.FC<MenuProps> = (props: MenuProps) => {
   const handleSelect = React.useCallback(
     (eventKey: string, event: React.MouseEvent) => {
       if (selectable) {
-        let nextSelectKeys = [...selectedKeys];
+        let nextSelectedKeys = [...selectedKeys];
         if (multiple) {
-          nextSelectKeys.push(eventKey);
+          nextSelectedKeys.push(eventKey);
         } else {
-          nextSelectKeys = [eventKey];
+          nextSelectedKeys = [eventKey];
         }
-
-        setSelectedKeys(nextSelectKeys);
-        onSelect?.(event, eventKey, nextSelectKeys);
+        setSelectedKeys(nextSelectedKeys);
+        onSelect?.(event, eventKey, nextSelectedKeys);
       }
     },
     [multiple, onSelect, selectable, selectedKeys, setSelectedKeys]
@@ -117,32 +103,80 @@ const Menu: React.FC<MenuProps> = (props: MenuProps) => {
   const handleDeselect = React.useCallback(
     (eventKey: string, event: React.MouseEvent) => {
       if (selectable) {
-        let nextSelectKeys = [...selectedKeys];
-        const index = nextSelectKeys.indexOf(eventKey);
+        let nextSelectedKeys = [...selectedKeys];
+        const index = nextSelectedKeys.indexOf(eventKey);
 
         if (index !== -1) {
           selectedKeys.splice(index, 1);
         }
-
-        setSelectedKeys(nextSelectKeys);
-        onDeselect?.(event, eventKey, nextSelectKeys);
+        setSelectedKeys(nextSelectedKeys);
+        onDeselect?.(event, eventKey, nextSelectedKeys);
       }
     },
     [onDeselect, selectable, selectedKeys, setSelectedKeys]
   );
 
+  const handleOpen = React.useCallback(
+    (eventKey: string, event: React.MouseEvent) => {
+      let nextOpenKeys = [...openKeys];
+      if (uniqueOpened) {
+        nextOpenKeys = [eventKey];
+      } else {
+        nextOpenKeys.push(eventKey);
+      }
+      setOpenKeys(nextOpenKeys);
+      onOpenChange?.(nextOpenKeys, event);
+    },
+    [onOpenChange, openKeys, setOpenKeys, uniqueOpened]
+  );
+
+  const handleClose = React.useCallback(
+    (eventKey: string, event: React.MouseEvent) => {
+      let nextOpenKeys = [...openKeys];
+      const index = nextOpenKeys.indexOf(eventKey);
+
+      if (index !== -1) {
+        nextOpenKeys.splice(index, 1);
+      }
+
+      setOpenKeys(nextOpenKeys);
+      onOpenChange?.(nextOpenKeys, event);
+    },
+    [onOpenChange, openKeys, setOpenKeys]
+  );
+
   const handleClick = React.useCallback(
-    (eventKey: string) => {
+    (eventKey: string, event: React.MouseEvent) => {
       onClick?.(eventKey);
     },
     [onClick]
   );
 
-  const handleOpenChange = React.useCallback(() => {}, []);
+  const handleOpenChange = React.useCallback(
+    (eventKey: string, event: React.MouseEvent) => {
+      const find = (key) => equals(eventKey, key);
+      const nextOpenKeys = [...openKeys];
+      if (nextOpenKeys.some(find)) {
+        handleClose(eventKey, event);
+      } else {
+        handleOpen(eventKey, event);
+      }
+    },
+    [handleClose, handleOpen, openKeys]
+  );
 
   const handleMouseEnter = React.useCallback(() => {}, []);
 
   const handleMouseLeave = React.useCallback(() => {}, []);
+
+  const event = {
+    onClick: handleClick,
+    onMouseEnter: handleMouseEnter,
+    onMouseLeave: handleMouseLeave,
+    onSelect: handleSelect,
+    onDeselect: handleDeselect,
+    onOpenChange: handleOpenChange,
+  };
 
   const contextValue = {
     selectedKeys,
@@ -153,7 +187,8 @@ const Menu: React.FC<MenuProps> = (props: MenuProps) => {
 
   return (
     <MenuContext.Provider value={contextValue}>
-      <MenuBody {...props}>{children}</MenuBody>
+      {selectedKeys}
+      <MenuBody {...props} {...event} />
     </MenuContext.Provider>
   );
 };

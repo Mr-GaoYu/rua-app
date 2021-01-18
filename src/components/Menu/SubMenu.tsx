@@ -76,12 +76,17 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export interface SubMenuProps
   extends WithComponentProps,
-    Omit<React.HtmlHTMLAttributes<HTMLElement>, "onSelect" | "title"> {
+    Omit<
+      React.HtmlHTMLAttributes<HTMLElement>,
+      "onSelect" | "title" | "onMouseEnter" | "onMouseLeave"
+    > {
   title?: React.ReactNode;
 
   icon?: React.ReactElement;
 
   activeKey?: string;
+
+  collapse?: boolean;
 
   disabled?: boolean;
 
@@ -93,19 +98,26 @@ export interface SubMenuProps
 
   level?: number;
 
+  className?: string;
+
   onClose?: () => void;
 
   onOpen?: () => void;
 
   onToggle?: (open?: boolean) => void;
 
-  onSelect?: (eventKey: string, event: React.MouseEvent<HTMLElement>) => void;
+  onSelect?: (eventKey: string, event: React.MouseEvent) => void;
 
-  onOpenChange?: (eventKey: string, event: React.SyntheticEvent) => void;
+  onOpenChange?: (eventKey: string, event: React.MouseEvent) => void;
+
+  onMouseEnter?: (eventKey: string, event: React.MouseEvent) => void;
+
+  onMouseLeave?: (eventKey: string, event: React.MouseEvent) => void;
 }
 
 const defaultProps: Partial<SubMenuProps> = {
   component: "li",
+  level: 1,
 };
 
 const SubMenu: RefForwardingComponent<"li", SubMenuProps> = React.forwardRef(
@@ -115,22 +127,60 @@ const SubMenu: RefForwardingComponent<"li", SubMenuProps> = React.forwardRef(
       open: openProp,
       title,
       icon,
+      collapse,
+      className,
       onOpen,
       onClose,
       onToggle,
       onOpenChange,
+      onMouseEnter,
+      onMouseLeave,
       eventKey,
       disabled,
+      level,
       onSelect,
+      children,
     } = props;
     const classes = useStyles();
 
-    const handleClick = React.useCallback((event: React.MouseEvent) => {
-        if(disabled){
-            return 
-        }
-        
-    }, []);
+    const handleOpenChange = React.useCallback(
+      (eventKey: string, event: React.MouseEvent) => {
+        onOpenChange?.(eventKey, event);
+      },
+      [onOpenChange]
+    );
+    const handleMouseLeave = React.useCallback(
+      (eventKey: string, event: React.MouseEvent) => {
+        onMouseLeave?.(eventKey, event);
+      },
+      [onMouseLeave]
+    );
+    const handleMouseEnter = React.useCallback(
+      (eventKey: string, event: React.MouseEvent) => {
+        onMouseEnter?.(eventKey, event);
+      },
+      [onMouseEnter]
+    );
+
+
+    const handleClick = React.useCallback((e: React.MouseEvent) => {}, []);
+
+    const handleTitleClick = React.useCallback(
+      (event: React.MouseEvent) => {
+        handleOpenChange(eventKey, event);
+      },
+      [eventKey, handleOpenChange]
+    );
+
+    const handleTitleMouseEnter = React.useCallback((e: React.MouseEvent) => {},
+    []);
+
+    const handleTitleMouseLeave = React.useCallback((e: React.MouseEvent) => {},
+    []);
+
+    const mouseEvent = {
+      onClick: handleTitleClick,
+    };
 
     const renderTitle = () => {
       if (!icon) {
@@ -164,10 +214,7 @@ const SubMenu: RefForwardingComponent<"li", SubMenuProps> = React.forwardRef(
           {...mouseEvent}
         >
           {cloneElement(icon, {
-            className: classNames(
-              isValidElement(icon) ? icon.props?.className : "",
-              "prefix-icon"
-            ),
+            className: classNames("prefix-icon"),
           })}
           {renderTitle()}
         </SafeAnchor>

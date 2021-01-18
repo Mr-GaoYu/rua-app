@@ -1,66 +1,16 @@
 import React from "react";
 import classNames from "classnames";
 import { WithComponentProps, RefForwardingComponent } from "src/@types/common";
-import { makeStyles, createStyles, Theme } from "src/components/core/styles";
 import SafeAnchor from "src/components/SafeAnchor";
 import { cloneElement, isValidElement } from "src/utilities/reactNode";
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    menuItem: {
-      listStyle: "none",
-    },
-    navLink: {
-      color: "#6c757d",
-      padding: "15px 30px",
-      position: "relative",
-      transition: "all .4s",
-      display: "block",
-      textDecoration: "none",
-      boxSizing: 'border-box',
-      "& .prefix-icon": {
-        width: 20,
-        height: 20,
-        margin: "0 10px 0 3px",
-        textAlign: "center",
-        verticalAlign: "middle",
-      },
-      "& span": {
-        verticalAlign: "middle",
-      },
-      "&:hover": {
-        color: "#727cf5",
-      },
-    },
-    collapse: {
-      "& $navLink": {
-        padding: "15px 20px",
-        minHeight: 56,
-        "& .prefix-icon": {
-          marginRight: 20,
-        },
-        "& span": {
-          display: "none",
-          paddingLeft: 10,
-        },
-        "&:hover": {
-          position: "relative",
-          width: 260,
-          background: "#fff",
-          "& span": {
-            display: "inline",
-          },
-        },
-      },
-    },
-  })
-);
+import useStyles from "./Menu.styles";
 
 export interface MenuItemProps
   extends WithComponentProps,
-    Omit<React.HtmlHTMLAttributes<HTMLElement>, "onSelect"> {
-  icon?: React.ReactNode;
-
+    Omit<
+      React.HtmlHTMLAttributes<HTMLElement>,
+      "onSelect" | "onClick" | "onMouseEnter" | "onMouseLeave"
+    > {
   collapse?: boolean;
 
   disabled?: boolean;
@@ -69,9 +19,39 @@ export interface MenuItemProps
 
   eventKey?: string;
 
-  level?: number;
+  className?: string;
 
-  onSelect?: (eventKey: string, event: React.SyntheticEvent) => void;
+  style?: React.CSSProperties;
+
+  children?: React.ReactNode;
+
+  selectedKeys?: string[];
+
+  title?: string;
+
+  onClick?: (eventKey: string, event: React.MouseEvent) => void;
+
+  onSelect?: (eventKey: string, event: React.MouseEvent) => void;
+
+  onDeselect?: (eventKey: string, event: React.MouseEvent) => void;
+
+  onDestroy?: (eventKey: string) => void;
+
+  onMouseEnter?: (eventKey: string, event: React.MouseEvent) => void;
+
+  onMouseLeave?: (eventKey: string, event: React.MouseEvent) => void;
+
+  isSelected?: boolean;
+
+  active?: boolean;
+
+  multiple?: boolean;
+
+  icon?: React.ReactNode;
+
+  indent?: number;
+
+  level?: number;
 }
 
 const defaultProps: Partial<MenuItemProps> = {
@@ -86,26 +66,54 @@ const MenuItem: RefForwardingComponent<"li", MenuItemProps> = React.forwardRef(
       disabled,
       className,
       children,
-      onSelect,
       onClick,
       eventKey,
       level,
       icon,
+      isSelected,
+      multiple,
+      onSelect,
+      onDeselect,
+      onMouseEnter,
+      onMouseLeave,
     } = props;
     const classes = useStyles();
 
     const handleClick: React.MouseEventHandler<HTMLElement> = React.useCallback(
       (event) => {
-        if (!disabled) {
+        console.log(isSelected, multiple);
+        onClick?.(eventKey, event);
+        if (multiple) {
+          if (isSelected) {
+            onDeselect?.(eventKey, event);
+          } else {
+            onSelect?.(eventKey, event);
+          }
+        } else if (!isSelected) {
           onSelect?.(eventKey, event);
-          onClick?.(event);
         }
       },
-      [disabled, eventKey, onClick, onSelect]
+      [eventKey, isSelected, multiple, onClick, onDeselect, onSelect]
+    );
+
+    const handleMouseEnter = React.useCallback(
+      (event: React.MouseEvent) => {
+        onMouseEnter?.(eventKey, event);
+      },
+      [eventKey, onMouseEnter]
+    );
+
+    const handleMouseLeave = React.useCallback(
+      (event: React.MouseEvent) => {
+        onMouseLeave?.(eventKey, event);
+      },
+      [eventKey, onMouseLeave]
     );
 
     const mouseEvent = {
       onClick: handleClick,
+      onMouseEnter: handleMouseEnter,
+      onMouseLeave: handleMouseLeave,
     };
 
     const renderItemChildren = () => {
@@ -123,29 +131,25 @@ const MenuItem: RefForwardingComponent<"li", MenuItemProps> = React.forwardRef(
 
       return <span>{children}</span>;
     };
+    
 
     return (
       <Component
         ref={ref}
         className={classNames(className, {
           [classes.menuItem]: true,
-          [classes.collapse]: collapse,
+          [classes.selected]: isSelected,
+          [classes.disabled]: disabled,
         })}
+        {...mouseEvent}
       >
-        <SafeAnchor
-          className={classNames({
-            [classes.navLink]: true,
-          })}
-          {...mouseEvent}
-        >
-          {cloneElement(icon, {
-            className: classNames(
-              isValidElement(icon) ? icon.props?.className : "",
-              "prefix-icon"
-            ),
-          })}
-          {renderItemChildren()}
-        </SafeAnchor>
+        {cloneElement(icon, {
+          className: classNames(
+            isValidElement(icon) ? icon.props?.className : "",
+            "prefix-icon"
+          ),
+        })}
+        {renderItemChildren()}
       </Component>
     );
   }

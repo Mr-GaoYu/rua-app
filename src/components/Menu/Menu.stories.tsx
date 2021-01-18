@@ -12,10 +12,22 @@ export default {
 export const NavBar = (args) => {
   return (
     <Menu {...args}>
-      <MenuItem {...args} eventKey="a">Dashboard</MenuItem>
-      <SubMenu {...args} eventKey="b" title="Dashboard">
-        <MenuItem {...args} eventKey="c">Dashboard</MenuItem>
-        <MenuItem {...args} eventKey="d">Dashboard</MenuItem>
+      <MenuItem {...args} eventKey="a">
+        Dashboard
+      </MenuItem>
+      <MenuItem {...args} eventKey="c">
+        Dashboard
+      </MenuItem>
+      <MenuItem {...args} eventKey="d">
+        Dashboard
+      </MenuItem>
+      <SubMenu {...args} eventKey="d">
+        <MenuItem {...args} eventKey="a">
+          Dashboard
+        </MenuItem>
+        <MenuItem {...args} eventKey="c">
+          Dashboard
+        </MenuItem>
       </SubMenu>
     </Menu>
   );
@@ -23,5 +35,5 @@ export const NavBar = (args) => {
 
 NavBar.args = {
   collapse: false,
-  icon: <AcUnitIcon />
+  icon: <AcUnitIcon />,
 };
