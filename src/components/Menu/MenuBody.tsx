@@ -2,7 +2,8 @@ import React from "react";
 import { RefForwardingComponent, WithComponentProps } from "src/@types/common";
 import classNames from "classnames";
 import useStyles from "./Menu.styles";
-import { HoverEventHandler } from "./interface";
+import { HoverEventHandler, RenderIconType } from "./interface";
+import { getKeyFromChildrenIndex } from "./utils";
 
 export interface MenuBodyProps
   extends WithComponentProps,
@@ -18,9 +19,23 @@ export interface MenuBodyProps
   activeKey?: string;
 
   onSelect?: (eventKey: string, event: React.SyntheticEvent) => void;
+
+  level?: number;
+
+  indent?: number;
+
+  multiple?: boolean;
+
+  itemIcon?: RenderIconType;
+
+  expandIcon?: RenderIconType;
+
+  itemClass?: (level: number) => string;
 }
 
-const defaultProps: Partial<MenuBodyProps> = {};
+const defaultProps: Partial<MenuBodyProps> = {
+  level: 1,
+};
 
 const MenuBody: RefForwardingComponent<"ul", MenuBodyProps> = React.forwardRef(
   (props: MenuBodyProps, ref: React.Ref<HTMLElement>) => {
@@ -30,23 +45,44 @@ const MenuBody: RefForwardingComponent<"ul", MenuBodyProps> = React.forwardRef(
       style,
       className,
       collapse,
+      itemIcon,
+      expandIcon,
+      level,
+      indent,
+      multiple,
+      itemClass
     } = props;
     const classes = useStyles();
 
     const handleItemHover: HoverEventHandler = (e) => {
       const { key, hover } = e;
 
-      updateActiveKey()
+      updateActiveKey();
     };
 
-    const items = React.Children.map(children, (child: any) => {
-      const displayName = child?.type?.displayName;
+    const items = React.Children.map(
+      children,
+      (child: React.ReactElement, index: number) => {
+        const childProps = child.props;
+        const key = getKeyFromChildrenIndex(child, childProps.eventKey, index);
 
-      if (displayName === "MenuItem") {
+        const newChildProps = {
+          eventKey: key,
+          index,
+          level,
+          indent,
+          multiple,
+          className: itemClass?.(level),
+          active: !childProps.disabled,
+          itemIcon: childProps.itemIcon || itemIcon,
+          expandIcon: childProps.expandIcon || expandIcon,
+        };
+        return React.cloneElement(child, {
+          ...newChildProps,
+          key: key || index,
+        });
       }
-
-      return child;
-    });
+    );
 
     return (
       <Component
@@ -67,5 +103,14 @@ MenuBody.defaultProps = defaultProps;
 MenuBody.displayName = "MenuBody";
 
 export default MenuBody;
+
+const getActiveKey = (
+  props: {
+    children?: React.ReactNode;
+    eventKey?: React.Key;
+    defaultActiveFirst?: boolean;
+  },
+  originalActiveKey: string
+) => {};
 
 const updateActiveKey = () => {};

@@ -8,9 +8,11 @@ export default {
 } as Meta;
 
 export const NavBar = (args) => {
-  return <Menu {...args}>
-    <MenuItem>2222</MenuItem>
-  </Menu>;
+  return (
+    <Menu {...args}>
+      <MenuItem key="1-1">2222</MenuItem>
+    </Menu>
+  );
 };
 
 NavBar.args = {

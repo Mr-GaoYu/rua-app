@@ -1,6 +1,7 @@
 import React from "react";
 import { RefForwardingComponent, WithComponentProps } from "src/@types/common";
 import MenuBody from "./MenuBody";
+import { RenderIconType } from "./interface";
 
 export interface MenuProps
   extends WithComponentProps,
@@ -15,13 +16,29 @@ export interface MenuProps
 
   activeKey?: string;
 
-  menuTrigger?: 'hover' | 'click';
+  menuTrigger?: "hover" | "click";
 
   selectedKeys?: string[];
 
   defaultSelectedKeys?: string[];
 
+  openKeys?: string[];
+
+  defaultOpenKeys?: string[];
+
+  itemIcon?: RenderIconType;
+
+  expandIcon?: RenderIconType;
+
+  indent?: number;
+
+  multiple?: boolean;
+
+  level?: number;
+
   onSelect?: (eventKey: string, event: React.SyntheticEvent) => void;
+
+  itemClass?: (level: number) => string;
 }
 
 export const MenuContext = React.createContext(null);
