@@ -1,138 +1,49 @@
 import React from "react";
+import { RefForwardingComponent, WithComponentProps } from "src/@types/common";
 import classNames from "classnames";
-import { WithComponentProps, RefForwardingComponent } from "src/@types/common";
-import { MenuContext, MenuContextType } from "./Menu";
-import { equals } from "ramda";
-import toArray from "rc-util/lib/Children/toArray";
 import useStyles from "./Menu.styles";
 
-export interface MenuBodyProps {
-  eventKey?: string;
+export type Key = React.Key;
+export interface MenuBodyProps
+  extends WithComponentProps,
+    Omit<React.HTMLAttributes<HTMLElement>, "onSelect"> {
+  collapse?: boolean;
 
-  activeKey?: string;
+  children?: React.ReactNode;
 
-  selectedKeys?: string[];
+  className?: string;
 
-  defaultSelectedKeys?: string[];
+  style?: React.CSSProperties;
 
-  defaultOpenKeys?: string[];
+  activeKey?: Key;
 
-  openKeys?: string[];
-
-  active?: boolean;
-
-  disabled?: boolean;
-
-  onSelect?: (eventKey: string, event: React.SyntheticEvent) => void;
-
-  onDeselect?: (eventKey: string, event: React.SyntheticEvent) => void;
-
-  onClick?: (eventKey: string, event: React.SyntheticEvent) => void;
-
-  onOpenChange?: (eventKey: string, event: React.SyntheticEvent) => void;
-
-  onMouseEnter?: () => void;
-
-  onMouseLeave?: () => void;
+  onSelect?: (eventKey: Key, event: React.SyntheticEvent) => void;
 }
 
-export type CombinedProps = MenuBodyProps & WithComponentProps;
-
-const defaultProps: Partial<CombinedProps> = {
-  component: "ul",
+const defaultProps: Partial<MenuBodyProps> = {
 };
 
-const MenuBody: RefForwardingComponent<"ul", CombinedProps> = React.forwardRef(
-  (props: CombinedProps, ref: React.Ref<HTMLElement>) => {
+const MenuBody: RefForwardingComponent<"ul", MenuBodyProps> = React.forwardRef(
+  (props: MenuBodyProps, ref: React.Ref<HTMLElement>) => {
     const {
       component: Component,
-      eventKey,
       children,
-      onClick,
-      onSelect,
-      onDeselect,
-      onOpenChange,
+      style,
+      className,
+      collapse,
     } = props;
     const classes = useStyles();
 
-    const { openKeys, selectedKeys, activeKey, collapse } = React.useContext(
-      MenuContext
-    );
-
-    const handleClick = React.useCallback(
-      (eventKey: string, event: React.MouseEvent) => {
-        onClick?.(eventKey, event);
-      },
-      [onClick]
-    );
-
-    const handleSelect = React.useCallback(
-      (eventKey: string, event: React.MouseEvent) => {
-        onSelect?.(eventKey, event);
-      },
-      [onSelect]
-    );
-
-    const handleDeselect = React.useCallback(
-      (eventKey: string, event: React.MouseEvent) => {
-        onDeselect?.(eventKey, event);
-      },
-      [onDeselect]
-    );
-
-    const handleOpenChange = React.useCallback(
-      (eventKey: string, event: React.MouseEvent) => {
-        onOpenChange?.(eventKey, event);
-      },
-      [onOpenChange]
-    );
-
-    const renderCommonMenuItem = (
-      child: React.ReactElement,
-      index: number,
-      extraProps: any
-    ) => {
-      const { eventKey } = child.props;
-      const newChildProps = {
-        isSelected: selectedKeys.indexOf(eventKey) !== -1,
-        onClick: handleClick,
-        onSelect: handleSelect,
-        onDeselect: handleDeselect,
-        onOpenChange: handleOpenChange,
-      };
-
-      return React.cloneElement(child, {
-        ...newChildProps,
-      });
-    };
-
-    const renderMenuItem = (
-      child: React.ReactElement,
-      index: number,
-      subMenuKey: React.Key
-    ) => {
-      if (!child) {
-        return null;
-      }
-      const extraProps = {
-        openKeys,
-        selectedKeys,
-        subMenuKey,
-      };
-      return renderCommonMenuItem(child, index, extraProps);
-    };
-
     return (
       <Component
+        style={style}
         ref={ref}
-        className={classNames({
+        className={classNames(className, {
           [classes.menu]: true,
           [classes.collapse]: collapse,
         })}
       >
-        {toArray(children).map((child: React.ReactElement, index: number) =>
-          renderMenuItem(child, index, eventKey)
-        )}
+        {children}
       </Component>
     );
   }

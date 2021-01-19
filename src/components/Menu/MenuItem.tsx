@@ -1,57 +1,26 @@
 import React from "react";
+import { RefForwardingComponent, WithComponentProps } from "src/@types/common";
 import classNames from "classnames";
-import { WithComponentProps, RefForwardingComponent } from "src/@types/common";
-import SafeAnchor from "src/components/SafeAnchor";
-import { cloneElement, isValidElement } from "src/utilities/reactNode";
 import useStyles from "./Menu.styles";
+import SafeAnchor from "src/components/SafeAnchor";
+import { Key } from "./Menu";
 
 export interface MenuItemProps
   extends WithComponentProps,
-    Omit<
-      React.HtmlHTMLAttributes<HTMLElement>,
-      "onSelect" | "onClick" | "onMouseEnter" | "onMouseLeave"
-    > {
-  collapse?: boolean;
-
-  disabled?: boolean;
-
-  divider?: boolean;
-
-  eventKey?: string;
-
+    Omit<React.HTMLAttributes<HTMLElement>, "onSelect"> {
   className?: string;
 
   style?: React.CSSProperties;
 
   children?: React.ReactNode;
 
-  selectedKeys?: string[];
-
-  title?: string;
-
-  onClick?: (eventKey: string, event: React.MouseEvent) => void;
-
-  onSelect?: (eventKey: string, event: React.MouseEvent) => void;
-
-  onDeselect?: (eventKey: string, event: React.MouseEvent) => void;
-
-  onDestroy?: (eventKey: string) => void;
-
-  onMouseEnter?: (eventKey: string, event: React.MouseEvent) => void;
-
-  onMouseLeave?: (eventKey: string, event: React.MouseEvent) => void;
+  active?: boolean;
 
   isSelected?: boolean;
 
-  active?: boolean;
+  eventKey?: Key;
 
-  multiple?: boolean;
-
-  icon?: React.ReactNode;
-
-  indent?: number;
-
-  level?: number;
+  onSelect?: (eventKey: Key, event: React.SyntheticEvent) => void;
 }
 
 const defaultProps: Partial<MenuItemProps> = {
@@ -62,94 +31,38 @@ const MenuItem: RefForwardingComponent<"li", MenuItemProps> = React.forwardRef(
   (props: MenuItemProps, ref: React.Ref<HTMLElement>) => {
     const {
       component: Component,
-      collapse,
-      disabled,
       className,
-      children,
+      style,
       onClick,
-      eventKey,
-      level,
-      icon,
-      isSelected,
-      multiple,
       onSelect,
-      onDeselect,
-      onMouseEnter,
-      onMouseLeave,
+      eventKey,
     } = props;
     const classes = useStyles();
 
-    const handleClick: React.MouseEventHandler<HTMLElement> = React.useCallback(
-      (event) => {
-        console.log(isSelected, multiple);
-        onClick?.(eventKey, event);
-        if (multiple) {
-          if (isSelected) {
-            onDeselect?.(eventKey, event);
-          } else {
-            onSelect?.(eventKey, event);
-          }
-        } else if (!isSelected) {
-          onSelect?.(eventKey, event);
-        }
+    const handleClick = React.useCallback(
+      (event: React.MouseEvent<HTMLElement>) => {
+        onSelect?.(eventKey, event);
+        onClick?.(event);
       },
-      [eventKey, isSelected, multiple, onClick, onDeselect, onSelect]
+      [eventKey, onClick, onSelect]
     );
-
-    const handleMouseEnter = React.useCallback(
-      (event: React.MouseEvent) => {
-        onMouseEnter?.(eventKey, event);
-      },
-      [eventKey, onMouseEnter]
-    );
-
-    const handleMouseLeave = React.useCallback(
-      (event: React.MouseEvent) => {
-        onMouseLeave?.(eventKey, event);
-      },
-      [eventKey, onMouseLeave]
-    );
-
-    const mouseEvent = {
-      onClick: handleClick,
-      onMouseEnter: handleMouseEnter,
-      onMouseLeave: handleMouseLeave,
-    };
-
-    const renderItemChildren = () => {
-      if (isValidElement(children) && children.type === "span") {
-        if (
-          children &&
-          collapse &&
-          level === 1 &&
-          typeof children === "string"
-        ) {
-          return <span>{(children as string).charAt(0)}</span>;
-        }
-        return children;
-      }
-
-      return <span>{children}</span>;
-    };
-    
 
     return (
       <Component
         ref={ref}
+        style={style}
         className={classNames(className, {
           [classes.menuItem]: true,
-          [classes.selected]: isSelected,
-          [classes.disabled]: disabled,
         })}
-        {...mouseEvent}
+        onClick={handleClick}
       >
-        {cloneElement(icon, {
-          className: classNames(
-            isValidElement(icon) ? icon.props?.className : "",
-            "prefix-icon"
-          ),
-        })}
-        {renderItemChildren()}
+        <SafeAnchor
+          className={classNames(className, {
+            [classes.itemLink]: true,
+          })}
+        >
+          1111
+        </SafeAnchor>
       </Component>
     );
   }
