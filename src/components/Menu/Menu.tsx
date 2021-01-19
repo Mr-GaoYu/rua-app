@@ -1,10 +1,7 @@
 import React from "react";
 import { RefForwardingComponent, WithComponentProps } from "src/@types/common";
-import classNames from "classnames";
-import useStyles from "./Menu.styles";
 import MenuBody from "./MenuBody";
 
-export type Key = React.Key;
 export interface MenuProps
   extends WithComponentProps,
     Omit<React.HTMLAttributes<HTMLElement>, "onSelect"> {
@@ -16,9 +13,15 @@ export interface MenuProps
 
   style?: React.CSSProperties;
 
-  activeKey?: Key;
+  activeKey?: string;
 
-  onSelect?: (eventKey: Key, event: React.SyntheticEvent) => void;
+  menuTrigger?: 'hover' | 'click';
+
+  selectedKeys?: string[];
+
+  defaultSelectedKeys?: string[];
+
+  onSelect?: (eventKey: string, event: React.SyntheticEvent) => void;
 }
 
 export const MenuContext = React.createContext(null);

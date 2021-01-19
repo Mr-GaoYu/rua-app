@@ -3,7 +3,7 @@ import { RefForwardingComponent, WithComponentProps } from "src/@types/common";
 import classNames from "classnames";
 import useStyles from "./Menu.styles";
 import SafeAnchor from "src/components/SafeAnchor";
-import { Key } from "./Menu";
+import { HoverEventHandler } from "./interface";
 
 export interface MenuItemProps
   extends WithComponentProps,
@@ -18,9 +18,11 @@ export interface MenuItemProps
 
   isSelected?: boolean;
 
-  eventKey?: Key;
+  eventKey?: string;
 
-  onSelect?: (eventKey: Key, event: React.SyntheticEvent) => void;
+  onSelect?: (eventKey: string, event: React.SyntheticEvent) => void;
+
+  onItemHover?: HoverEventHandler;
 }
 
 const defaultProps: Partial<MenuItemProps> = {
@@ -35,6 +37,8 @@ const MenuItem: RefForwardingComponent<"li", MenuItemProps> = React.forwardRef(
       style,
       onClick,
       onSelect,
+      onItemHover,
+      onMouseEnter,
       eventKey,
     } = props;
     const classes = useStyles();
@@ -47,6 +51,22 @@ const MenuItem: RefForwardingComponent<"li", MenuItemProps> = React.forwardRef(
       [eventKey, onClick, onSelect]
     );
 
+    const handleMouseEnter = React.useCallback(
+      (event: React.MouseEvent<HTMLElement>) => {
+        onItemHover?.({ key: eventKey, hover: true });
+        onMouseEnter?.(event);
+      },
+      [eventKey, onItemHover, onMouseEnter]
+    );
+
+    const handleMouseLeave = React.useCallback(
+      (event: React.MouseEvent<HTMLElement>) => {
+        onItemHover?.({ key: eventKey, hover: false });
+        onMouseEnter?.(event);
+      },
+      [eventKey, onItemHover, onMouseEnter]
+    );
+
     return (
       <Component
         ref={ref}
@@ -55,6 +75,8 @@ const MenuItem: RefForwardingComponent<"li", MenuItemProps> = React.forwardRef(
           [classes.menuItem]: true,
         })}
         onClick={handleClick}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         <SafeAnchor
           className={classNames(className, {

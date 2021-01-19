@@ -2,8 +2,8 @@ import React from "react";
 import { RefForwardingComponent, WithComponentProps } from "src/@types/common";
 import classNames from "classnames";
 import useStyles from "./Menu.styles";
+import { HoverEventHandler } from "./interface";
 
-export type Key = React.Key;
 export interface MenuBodyProps
   extends WithComponentProps,
     Omit<React.HTMLAttributes<HTMLElement>, "onSelect"> {
@@ -15,13 +15,12 @@ export interface MenuBodyProps
 
   style?: React.CSSProperties;
 
-  activeKey?: Key;
+  activeKey?: string;
 
-  onSelect?: (eventKey: Key, event: React.SyntheticEvent) => void;
+  onSelect?: (eventKey: string, event: React.SyntheticEvent) => void;
 }
 
-const defaultProps: Partial<MenuBodyProps> = {
-};
+const defaultProps: Partial<MenuBodyProps> = {};
 
 const MenuBody: RefForwardingComponent<"ul", MenuBodyProps> = React.forwardRef(
   (props: MenuBodyProps, ref: React.Ref<HTMLElement>) => {
@@ -34,6 +33,21 @@ const MenuBody: RefForwardingComponent<"ul", MenuBodyProps> = React.forwardRef(
     } = props;
     const classes = useStyles();
 
+    const handleItemHover: HoverEventHandler = (e) => {
+      const { key, hover } = e;
+
+      updateActiveKey()
+    };
+
+    const items = React.Children.map(children, (child: any) => {
+      const displayName = child?.type?.displayName;
+
+      if (displayName === "MenuItem") {
+      }
+
+      return child;
+    });
+
     return (
       <Component
         style={style}
@@ -43,7 +57,7 @@ const MenuBody: RefForwardingComponent<"ul", MenuBodyProps> = React.forwardRef(
           [classes.collapse]: collapse,
         })}
       >
-        {children}
+        {items}
       </Component>
     );
   }
@@ -53,3 +67,5 @@ MenuBody.defaultProps = defaultProps;
 MenuBody.displayName = "MenuBody";
 
 export default MenuBody;
+
+const updateActiveKey = () => {};

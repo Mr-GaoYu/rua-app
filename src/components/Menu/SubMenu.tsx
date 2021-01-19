@@ -3,7 +3,7 @@ import { RefForwardingComponent, WithComponentProps } from "src/@types/common";
 import classNames from "classnames";
 import useStyles from "./Menu.styles";
 import SafeAnchor from "src/components/SafeAnchor";
-import { Key } from "./Menu";
+import { Key } from "./interface";
 
 export interface SubMenuProps
   extends WithComponentProps,
@@ -15,7 +15,6 @@ export interface SubMenuProps
   children?: React.ReactNode;
 
   eventKey?: Key;
-
 }
 
 const defaultProps: Partial<SubMenuProps> = {
@@ -24,15 +23,8 @@ const defaultProps: Partial<SubMenuProps> = {
 
 const SubMenu: RefForwardingComponent<"li", SubMenuProps> = React.forwardRef(
   (props: SubMenuProps, ref: React.Ref<HTMLElement>) => {
-    const {
-      component: Component,
-      className,
-      style,
-      children
-    } = props;
+    const { component: Component, className, style, children } = props;
     const classes = useStyles();
-
-
 
     return (
       <Component
@@ -49,7 +41,6 @@ const SubMenu: RefForwardingComponent<"li", SubMenuProps> = React.forwardRef(
         >
           1111
         </SafeAnchor>
-        
       </Component>
     );
   }
